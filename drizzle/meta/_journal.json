@@ -1,13 +1,20 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1758579017558,
-      "tag": "0000_opposite_piledriver",
-      "breakpoints": true
-    }
-  ]
+    "version":  "7",
+    "dialect":  "postgresql",
+    "entries":  [
+                    {
+                        "idx":  0,
+                        "version":  "7",
+                        "when":  1758579017558,
+                        "tag":  "0000_opposite_piledriver",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  1,
+                        "version":  "7",
+                        "when":  1758582175888,
+                        "tag":  "20250922_add_multitenant_schema",
+                        "breakpoints":  true
+                    }
+                ]
 }

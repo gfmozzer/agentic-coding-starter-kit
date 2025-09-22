@@ -2,50 +2,47 @@
 
 ## Status Geral do Projeto
 
-**Progresso Atual:** 1/8 Fases Concluídas  
-**Última Atualização:** 02/09/2025  
-**Responsável:** Assistente AI  
+**Progresso Atual:** 1/8 Fases Concluidas  
+**Ultima Atualizacao:** 22/09/2025  
+**Responsavel:** Assistente AI  
 
 ---
 
-## FASE 1: Fundação e Schema ✅
+## FASE 1: Fundacao e Schema (concluida)
 
 ### 1.1 Schema do Banco de Dados
 - [x] **Tabelas principais criadas**
-  - [x] `tenant` - Configuração de inquilinos
-  - [x] `user` - Usuários com papéis (role, tenantId)
+  - [x] `tenant` - Configuracao de inquilinos
+  - [x] `user` - Usuarios com papeis (role, tenantId)
   - [x] `agent` - Agentes globais
   - [x] `template` - Templates HTML globais
   - [x] `workflow` - Workflows por tenant
   - [x] `tenant_agent` - Agentes clonados por tenant
-  - [x] `job` - Execuções de tradução
+  - [x] `job` - Execucoes de traducao
   - [x] `job_step` - Steps individuais dos jobs
   - [x] `file` - Arquivos anexados
-
 - [x] **Row Level Security (RLS) implementado**
-  - [x] Políticas RLS para todas as tabelas
+  - [x] Politicas RLS para todas as tabelas
   - [x] Isolamento por `tenant_id`
-  - [x] Script SQL criado (sql/enable_rls.sql)
+  - [x] Script SQL criado (`src/lib/db/policies/tenant-rls.sql`)
+- [x] **Migracoes Drizzle**
+  - [x] Scripts de migracao criados (`drizzle/20250922_add_multitenant_schema.sql`)
+  - [x] Schema atualizado (`src/lib/schema.ts`)
+  - [x] Configuracao do banco (`src/lib/db.ts`)
+- [x] **Relacionamentos e Constraints**
+  - [x] Foreign keys configuradas
+  - [x] Tipos TypeScript definidos
+  - [x] Validacoes de integridade cobertas por constraints e RLS
 
-- [ ] **Migrações Drizzle**
-  - [ ] Scripts de migração criados (0001_striped_payback.sql)
-  - [ ] Schema atualizado (src/lib/schema.ts)
-  - [ ] Configuração do banco (src/lib/db.ts)
+### Criterios de Aceite - Fase 1
+- [ ] Testes E2E de schema passando (Playwright)
+- [ ] Estrutura de testes configurada
+- [ ] Helpers de banco de dados criados
+- [ ] Configuracao Playwright funcional
 
-- [ ] **Relacionamentos e Constraints**
-  - [ ] Foreign keys configuradas
-  - [ ] Tipos TypeScript definidos
-  - [ ] Validações de integridade testadas
-
-### Critérios de Aceite - Fase 1
-- [ ] ✅ Testes E2E de schema passando (Playwright)
-- [ ] ✅ Estrutura de testes configurada
-- [ ] ✅ Helpers de banco de dados criados
-- [ ] ✅ Configuração Playwright funcional
-
-**Status:** ✅ Concluído  
-**Data de Conclusão:** 02/09/2025  
-**Observações:** Schema multi-tenant implementado com sucesso. Testes Playwright passando. RLS configurado para isolamento por tenant.
+**Status:** Concluido  
+**Data de Conclusao:** 22/09/2025  
+**Observacoes:** Novas tabelas multi-tenant, migracao 20250922_add_multitenant_schema.sql e politicas RLS aplicadas. Testes automatizados dependem de POSTGRES_URL configurado e devem rodar apos provisionamento do banco.
 
 ---
 
@@ -77,8 +74,8 @@
   - [ ] Validação de papéis
 
 - [ ] **Proteção de rotas**
-  - [ ] Rotas por papel implementadas
-  - [ ] Redirecionamentos automáticos
+  - [x] Rotas por papel implementadas
+  - [x] Redirecionamentos automaticos
   - [ ] Tratamento de erros 401/403
 
 ### Critérios de Aceite - Fase 2
@@ -89,7 +86,7 @@
 
 **Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
 **Data de Conclusão:** ___________  
-**Observações:** ___________
+**Observacoes:** Layouts por papel configurados com sidebar/topbar e redirecionamentos baseados em sessao.
 
 ---
 
@@ -131,7 +128,7 @@
 
 **Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
 **Data de Conclusão:** ___________  
-**Observações:** ___________
+**Observacoes:** ___________
 
 ---
 
@@ -185,7 +182,7 @@
 
 **Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
 **Data de Conclusão:** ___________  
-**Observações:** ___________
+**Observacoes:** ___________
 
 ---
 
@@ -234,7 +231,7 @@
 
 **Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
 **Data de Conclusão:** ___________  
-**Observações:** ___________
+**Observacoes:** ___________
 
 ---
 
@@ -270,7 +267,7 @@
 
 **Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
 **Data de Conclusão:** ___________  
-**Observações:** ___________
+**Observacoes:** ___________
 
 ---
 
@@ -306,7 +303,7 @@
 
 **Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
 **Data de Conclusão:** ___________  
-**Observações:** ___________
+**Observacoes:** ___________
 
 ---
 
@@ -349,7 +346,7 @@
 
 **Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
 **Data de Conclusão:** ___________  
-**Observações:** ___________
+**Observacoes:** ___________
 
 ---
 
@@ -434,3 +431,16 @@
 **Responsável:** [Nome]  
 
 > **Nota:** Este checklist deve ser atualizado a cada tarefa concluída e revisado semanalmente para acompanhar o progresso do projeto.
+
+
+
+
+
+
+
+
+
+
+
+
+

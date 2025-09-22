@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import type { InferSession, InferUser } from "better-auth";
 import { headers } from "next/headers";
 import { cache } from "react";
 
@@ -16,12 +15,27 @@ export interface SessionContext {
   };
 }
 
-type AuthSession = InferSession<typeof auth>;
-type AuthUser = InferUser<typeof auth>;
+type SessionRecord = {
+  userId: string;
+  customClaims?: {
+    role?: string;
+    tenantId?: string;
+    [key: string]: unknown;
+  } | null;
+};
 
-type RawSessionResponse = Awaited<ReturnType<typeof auth.api.getSession>>;
+type UserRecord = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+} | null;
 
-function resolveRole(session?: AuthSession | null): AppRole {
+type SessionResponse = {
+  session?: SessionRecord | null;
+  user?: UserRecord;
+};
+
+function resolveRole(session?: SessionRecord | null): AppRole {
   const claimRole = session?.customClaims?.role;
   if (claimRole === "super-admin" || claimRole === "operator") {
     return claimRole;
@@ -29,26 +43,28 @@ function resolveRole(session?: AuthSession | null): AppRole {
   return "operator";
 }
 
-function resolveTenant(session?: AuthSession | null): string | undefined {
+function resolveTenant(session?: SessionRecord | null): string | undefined {
   const tenant = session?.customClaims?.tenantId;
   return typeof tenant === "string" && tenant.trim().length > 0
     ? tenant
     : undefined;
 }
 
-function mapUser(user?: AuthUser | null) {
+function mapUser(user?: UserRecord) {
   return {
     name: user?.name ?? null,
     email: user?.email ?? null,
-    image: user?.image,
+    image: user?.image ?? undefined,
   };
 }
 
 async function loadSessionInternal(): Promise<SessionContext | null> {
   try {
+    const baseHeaders = await headers();
+    const reqHeaders = new Headers(baseHeaders);
     const session = (await auth.api.getSession({
-      headers: headers(),
-    })) as RawSessionResponse;
+      headers: reqHeaders,
+    })) as SessionResponse;
 
     if (!session || !session.session || !session.user) {
       return null;
