@@ -8,7 +8,7 @@ alwaysApply: false
 
 id: "MVP-003"
 title: "Super-admin gerencia tenants e usuarios"
-status: "planned"
+status: "in_progress"
 priority: "P0"
 labels: ["ui","admin","multitenant"]
 dependencies: ["MVP-001","MVP-002"]
@@ -83,3 +83,10 @@ Criar teste `tests/e2e/super-admin-tenants.spec.ts` que usa login simulado para 
 # 10) Notes / Links
 
 - Considerar adicionar logs em `docs/runbooks` posteriormente.
+## Progress
+
+- [x] Kickoff: requisitos revisados e contexto carregado.
+- [ ] Lista de tenants com contagem de membros implementada.
+- [ ] Modais e server actions de criacao/edicao ativos.
+- [ ] Gestao de usuarios por tenant concluida.
+- [ ] Playwright e2e cobrindo fluxo principal.

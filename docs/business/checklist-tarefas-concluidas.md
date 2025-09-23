@@ -86,7 +86,7 @@
 
 **Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
 **Data de ConclusÃ£o:** ___________  
-**Observacoes:** Layouts por papel configurados com sidebar/topbar e redirecionamentos baseados em sessao.
+**Observacoes:** Layouts por papel configurados com sidebar/topbar e redirecionamentos baseados em sessao. Console de super-admin para tenants/usuarios em desenvolvimento (MVP-003).
 
 ---
 
@@ -431,6 +431,7 @@
 **ResponsÃ¡vel:** [Nome]  
 
 > **Nota:** Este checklist deve ser atualizado a cada tarefa concluÃ­da e revisado semanalmente para acompanhar o progresso do projeto.
+
 
 
 
