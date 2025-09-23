@@ -1,9 +1,9 @@
-﻿# Checklist de Tarefas ConcluÃ­das - Sistema Multi-tenant de TraduÃ§Ã£o
+# Checklist de Tarefas Conclu?das - Sistema Multi-tenant de Tradu??o
 
 ## Status Geral do Projeto
 
-**Progresso Atual:** 1/8 Fases concluidas | Fase 2 em andamento (MVP-003)  
-**Ultima Atualizacao:** 24/09/2025  
+**Progresso Atual:** 1/8 Fases concluidas | Fase 2 em andamento (MVP-003/MVP-004 finalizado)  
+**Ultima Atualizacao:** 26/09/2025  
 **Responsavel:** Assistente AI  
 
 ---
@@ -46,172 +46,172 @@
 
 ---
 
-## FASE 2: AutenticaÃ§Ã£o Multi-tenant âŒ
+## FASE 2: Autenticação Multi-tenant ❌
 
-### 2.1 Sistema de PapÃ©is
+### 2.1 Sistema de Papéis
 - [ ] **Super-Admin**
-  - [ ] Acesso global ao sistema
-  - [ ] GestÃ£o de agentes globais
-  - [ ] CriaÃ§Ã£o de workflows base
-  - [ ] Middleware de autorizaÃ§Ã£o
+  - [x] Acesso global ao sistema
+  - [x] Gestão de agentes globais
+  - [ ] Criação de workflows base
+  - [ ] Middleware de autorização
   - [x] Console de tenants/usuarios (MVP-003)
 
 - [ ] **Tenant Admin**
   - [ ] Acesso restrito ao tenant
   - [ ] Clonagem de workflows
-  - [ ] PersonalizaÃ§Ã£o de agentes
-  - [ ] ConfiguraÃ§Ã£o de tokens LLM
+  - [ ] Personalização de agentes
+  - [ ] Configuração de tokens LLM
 
 - [ ] **Operador**
-  - [ ] ExecuÃ§Ã£o de jobs
-  - [ ] RevisÃ£o de gates
-  - [ ] VisualizaÃ§Ã£o de resultados
+  - [ ] Execução de jobs
+  - [ ] Revisão de gates
+  - [ ] Visualização de resultados
   - [ ] Upload de documentos
 
-### 2.2 Middleware e SeguranÃ§a
-- [ ] **Middleware de autenticaÃ§Ã£o**
-  - [ ] VerificaÃ§Ã£o de JWT
-  - [ ] ExtraÃ§Ã£o de tenant_id
-  - [ ] ValidaÃ§Ã£o de papÃ©is
+### 2.2 Middleware e Segurança
+- [ ] **Middleware de autenticação**
+  - [ ] Verificação de JWT
+  - [ ] Extração de tenant_id
+  - [ ] Validação de papéis
 
-- [ ] **ProteÃ§Ã£o de rotas**
+- [ ] **Proteção de rotas**
   - [x] Rotas por papel implementadas
   - [x] Redirecionamentos automaticos
   - [ ] Tratamento de erros 401/403
 
-### CritÃ©rios de Aceite - Fase 2
-- [ ] âœ… Testes de autenticaÃ§Ã£o passando
-- [ ] âœ… Isolamento entre tenants validado
-- [ ] âœ… Todos os papÃ©is funcionando
-- [ ] âœ… SeguranÃ§a auditada
+### Critérios de Aceite - Fase 2
+- [ ] ✅ Testes de autenticação passando
+- [ ] ✅ Isolamento entre tenants validado
+- [ ] ✅ Todos os papéis funcionando
+- [ ] ✅ Segurança auditada
 
-**Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
-**Data de ConclusÃ£o:** ___________  
-**Observacoes:** Layouts por papel configurados com sidebar/topbar e redirecionamentos baseados em sessao. Console de super-admin para tenants/usuarios com CRUD de tenants, membros ativos e convites pendentes (MVP-003 concluido).
+**Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
+**Data de Conclusão:** ___________  
+**Observacoes:** Layouts por papel configurados com sidebar/topbar e redirecionamentos baseados em sessao. Console de super-admin para tenants/usuarios com CRUD de tenants, membros ativos e convites pendentes (MVP-003 concluido). Catalogo global de agentes com auditoria, teste de schema via generateObject e suite unitaria rodando com tsx (MVP-004 finalizado).
 
 ---
 
-## FASE 3: GestÃ£o de Agentes e Templates âŒ
+## FASE 3: Gestão de Agentes e Templates ❌
 
 ### 3.1 CRUD de Agentes (Super-Admin)
 - [ ] **Interface de listagem**
-  - [ ] Tabela com filtros
-  - [ ] PaginaÃ§Ã£o implementada
+  - [x] Tabela com filtros
+  - [ ] Paginação implementada
   - [ ] Busca por nome/tipo
 
-- [ ] **FormulÃ¡rio de criaÃ§Ã£o/ediÃ§Ã£o**
-  - [ ] ValidaÃ§Ã£o de campos
-  - [ ] Tipos de agente suportados
-  - [ ] Preview de configuraÃ§Ã£o
+- [ ] **Formulário de criação/edição**
+  - [x] Validação de campos
+  - [x] Tipos de agente suportados
+  - [ ] Preview de configuração
 
 - [ ] **Tipos de agentes implementados**
-  - [ ] `ocr` - ExtraÃ§Ã£o de texto
-  - [ ] `extract_structured` - Dados estruturados
-  - [ ] `extract_unstructured` - Texto livre
-  - [ ] `webhook` - IntegraÃ§Ã£o externa
+  - [ ] `ocr` - Extração de texto
+  - [x] `extract_structured` - Dados estruturados
+  - [x] `extract_unstructured` - Texto livre
+  - [ ] `webhook` - Integração externa
 
 ### 3.2 Templates HTML
 - [ ] **Editor de templates**
   - [ ] Syntax highlighting
   - [ ] Preview em tempo real
-  - [ ] ValidaÃ§Ã£o de HTML
+  - [ ] Validação de HTML
 
-- [ ] **GestÃ£o de templates**
+- [ ] **Gestão de templates**
   - [ ] CRUD completo
   - [ ] Versionamento
-  - [ ] Templates padrÃ£o
+  - [ ] Templates padrão
 
-### CritÃ©rios de Aceite - Fase 3
-- [ ] âœ… Todos os tipos de agente funcionando
-- [ ] âœ… Templates renderizando corretamente
-- [ ] âœ… ValidaÃ§Ãµes de formulÃ¡rio ativas
-- [ ] âœ… Testes E2E de CRUD passando
+### Critérios de Aceite - Fase 3
+- [ ] ✅ Todos os tipos de agente funcionando
+- [ ] ✅ Templates renderizando corretamente
+- [ ] ✅ Validações de formulário ativas
+- [ ] ✅ Testes E2E de CRUD passando
 
-**Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
-**Data de ConclusÃ£o:** ___________  
+**Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
+**Data de Conclusão:** ___________  
 **Observacoes:** ___________
 
 ---
 
-## FASE 4: Workflow Builder âŒ
+## FASE 4: Workflow Builder ❌
 
 ### 4.1 Interface Visual
 - [ ] **Canvas de workflow**
-  - [ ] Drag & drop de nÃ³s
-  - [ ] ConexÃµes entre nÃ³s
+  - [ ] Drag & drop de nós
+  - [ ] Conexões entre nós
   - [ ] Zoom e pan
   - [ ] Grid de alinhamento
 
 - [ ] **Paleta de componentes**
-  - [ ] NÃ³s de agente
+  - [ ] Nós de agente
   - [ ] Grupos de extratores
   - [ ] Review gates
   - [ ] Conectores
 
-### 4.2 ConfiguraÃ§Ã£o de NÃ³s
-- [ ] **NÃ³ de Agente**
-  - [ ] SeleÃ§Ã£o de agente
-  - [ ] ConfiguraÃ§Ã£o de entrada/saÃ­da
-  - [ ] ValidaÃ§Ã£o de configuraÃ§Ã£o
+### 4.2 Configuração de Nós
+- [ ] **Nó de Agente**
+  - [ ] Seleção de agente
+  - [ ] Configuração de entrada/saída
+  - [ ] Validação de configuração
 
 - [ ] **Grupo de Extratores**
-  - [ ] MÃºltiplos agentes
-  - [ ] AgregaÃ§Ã£o de resultados
-  - [ ] ConfiguraÃ§Ã£o de chaves
+  - [ ] Múltiplos agentes
+  - [ ] Agregação de resultados
+  - [ ] Configuração de chaves
 
 - [ ] **Review Gate**
-  - [ ] ConfiguraÃ§Ã£o de campos editÃ¡veis
-  - [ ] Regras de aprovaÃ§Ã£o
-  - [ ] Templates de revisÃ£o
+  - [ ] Configuração de campos editáveis
+  - [ ] Regras de aprovação
+  - [ ] Templates de revisão
 
-### 4.3 ValidaÃ§Ã£o e Salvamento
-- [ ] **ValidaÃ§Ã£o de workflow**
-  - [ ] Conectividade dos nÃ³s
-  - [ ] ConfiguraÃ§Ãµes obrigatÃ³rias
+### 4.3 Validação e Salvamento
+- [ ] **Validação de workflow**
+  - [ ] Conectividade dos nós
+  - [ ] Configurações obrigatórias
   - [ ] Ciclos detectados
 
-- [ ] **SerializaÃ§Ã£o JSON**
+- [ ] **Serialização JSON**
   - [ ] Schema de workflow
   - [ ] Versionamento
-  - [ ] Backup automÃ¡tico
+  - [ ] Backup automático
 
-### CritÃ©rios de Aceite - Fase 4
-- [ ] âœ… Workflow visual funcionando
-- [ ] âœ… Todos os tipos de nÃ³ implementados
-- [ ] âœ… ValidaÃ§Ã£o completa ativa
-- [ ] âœ… Salvamento/carregamento funcionando
+### Critérios de Aceite - Fase 4
+- [ ] ✅ Workflow visual funcionando
+- [ ] ✅ Todos os tipos de nó implementados
+- [ ] ✅ Validação completa ativa
+- [ ] ✅ Salvamento/carregamento funcionando
 
-**Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
-**Data de ConclusÃ£o:** ___________  
+**Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
+**Data de Conclusão:** ___________  
 **Observacoes:** ___________
 
 ---
 
-## FASE 5: Sistema de Jobs e ExecuÃ§Ã£o âŒ
+## FASE 5: Sistema de Jobs e Execução ❌
 
-### 5.1 ExecuÃ§Ã£o de Jobs
-- [ ] **Interface de criaÃ§Ã£o**
-  - [ ] SeleÃ§Ã£o de workflow
+### 5.1 Execução de Jobs
+- [ ] **Interface de criação**
+  - [ ] Seleção de workflow
   - [ ] Upload de PDF
-  - [ ] ConfiguraÃ§Ãµes adicionais
+  - [ ] Configurações adicionais
 
 - [ ] **Estados do job**
   - [ ] `pending` - Aguardando
   - [ ] `processing` - Em processamento
-  - [ ] `review:gate-id` - Em revisÃ£o
-  - [ ] `done` - ConcluÃ­do
+  - [ ] `review:gate-id` - Em revisão
+  - [ ] `done` - Concluído
   - [ ] `error` - Erro
 
-### 5.2 IntegraÃ§Ã£o com n8n
+### 5.2 Integração com n8n
 - [ ] **Webhook de disparo**
   - [ ] Payload estruturado
-  - [ ] AutenticaÃ§Ã£o segura
-  - [ ] Retry automÃ¡tico
+  - [ ] Autenticação segura
+  - [ ] Retry automático
 
 - [ ] **Callbacks de status**
-  - [ ] AtualizaÃ§Ã£o de progresso
+  - [ ] Atualização de progresso
   - [ ] Review gates
-  - [ ] ConclusÃ£o de job
+  - [ ] Conclusão de job
 
 ### 5.3 Storage de Arquivos
 - [ ] **Upload para S3/MinIO**
@@ -219,96 +219,96 @@
   - [ ] Resultados processados
   - [ ] URLs assinadas
 
-- [ ] **GestÃ£o de arquivos**
-  - [ ] Cleanup automÃ¡tico
+- [ ] **Gestão de arquivos**
+  - [ ] Cleanup automático
   - [ ] Versionamento
   - [ ] Backup
 
-### CritÃ©rios de Aceite - Fase 5
-- [ ] âœ… Jobs executando corretamente
-- [ ] âœ… IntegraÃ§Ã£o n8n funcionando
-- [ ] âœ… Storage de arquivos ativo
-- [ ] âœ… Estados de job corretos
+### Critérios de Aceite - Fase 5
+- [ ] ✅ Jobs executando corretamente
+- [ ] ✅ Integração n8n funcionando
+- [ ] ✅ Storage de arquivos ativo
+- [ ] ✅ Estados de job corretos
 
-**Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
-**Data de ConclusÃ£o:** ___________  
+**Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
+**Data de Conclusão:** ___________  
 **Observacoes:** ___________
 
 ---
 
-## FASE 6: Review Gates e Interface de RevisÃ£o âŒ
+## FASE 6: Review Gates e Interface de Revisão ❌
 
-### 6.1 Tela de RevisÃ£o
+### 6.1 Tela de Revisão
 - [ ] **PDF Viewer**
-  - [ ] VisualizaÃ§Ã£o de pÃ¡ginas
-  - [ ] Zoom e navegaÃ§Ã£o
+  - [ ] Visualização de páginas
+  - [ ] Zoom e navegação
   - [ ] Highlight de campos
 
-- [ ] **FormulÃ¡rio de chaves**
-  - [ ] Campos editÃ¡veis
-  - [ ] ValidaÃ§Ã£o em tempo real
-  - [ ] HistÃ³rico de alteraÃ§Ãµes
+- [ ] **Formulário de chaves**
+  - [ ] Campos editáveis
+  - [ ] Validação em tempo real
+  - [ ] Histórico de alterações
 
-### 6.2 Fluxo de AprovaÃ§Ã£o
-- [ ] **AÃ§Ãµes de revisÃ£o**
+### 6.2 Fluxo de Aprovação
+- [ ] **Ações de revisão**
   - [ ] Aprovar
-  - [ ] Rejeitar com comentÃ¡rios
+  - [ ] Rejeitar com comentários
   - [ ] Solicitar reprocessamento
 
-- [ ] **NotificaÃ§Ãµes**
-  - [ ] Status de revisÃ£o
-  - [ ] Alertas de pendÃªncias
-  - [ ] HistÃ³rico de aÃ§Ãµes
+- [ ] **Notificações**
+  - [ ] Status de revisão
+  - [ ] Alertas de pendências
+  - [ ] Histórico de ações
 
-### CritÃ©rios de Aceite - Fase 6
-- [ ] âœ… PDF viewer funcionando
-- [ ] âœ… FormulÃ¡rio de revisÃ£o ativo
-- [ ] âœ… Fluxo de aprovaÃ§Ã£o completo
-- [ ] âœ… NotificaÃ§Ãµes implementadas
+### Critérios de Aceite - Fase 6
+- [ ] ✅ PDF viewer funcionando
+- [ ] ✅ Formulário de revisão ativo
+- [ ] ✅ Fluxo de aprovação completo
+- [ ] ✅ Notificações implementadas
 
-**Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
-**Data de ConclusÃ£o:** ___________  
+**Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
+**Data de Conclusão:** ___________  
 **Observacoes:** ___________
 
 ---
 
-## FASE 7: Clonagem e PersonalizaÃ§Ã£o âŒ
+## FASE 7: Clonagem e Personalização ❌
 
 ### 7.1 Clonagem de Workflows
 - [ ] **Interface de clonagem**
   - [ ] Lista de workflows globais
   - [ ] Preview de estrutura
-  - [ ] ConfiguraÃ§Ã£o de clone
+  - [ ] Configuração de clone
 
-- [ ] **PersonalizaÃ§Ã£o**
-  - [ ] EdiÃ§Ã£o de agentes clonados
-  - [ ] CustomizaÃ§Ã£o de prompts
-  - [ ] ConfiguraÃ§Ã£o de modelos
+- [ ] **Personalização**
+  - [ ] Edição de agentes clonados
+  - [ ] Customização de prompts
+  - [ ] Configuração de modelos
 
-### 7.2 GestÃ£o de VersÃµes
+### 7.2 Gestão de Versões
 - [ ] **Versionamento**
   - [ ] Rastreamento de origem
-  - [ ] HistÃ³rico de mudanÃ§as
-  - [ ] SincronizaÃ§Ã£o opcional
+  - [ ] Histórico de mudanças
+  - [ ] Sincronização opcional
 
 - [ ] **Isolamento de tenant**
   - [ ] Workflows privados
   - [ ] Agentes personalizados
-  - [ ] ConfiguraÃ§Ãµes independentes
+  - [ ] Configurações independentes
 
-### CritÃ©rios de Aceite - Fase 7
-- [ ] âœ… Clonagem funcionando
-- [ ] âœ… PersonalizaÃ§Ã£o ativa
-- [ ] âœ… Versionamento implementado
-- [ ] âœ… Isolamento validado
+### Critérios de Aceite - Fase 7
+- [ ] ✅ Clonagem funcionando
+- [ ] ✅ Personalização ativa
+- [ ] ✅ Versionamento implementado
+- [ ] ✅ Isolamento validado
 
-**Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
-**Data de ConclusÃ£o:** ___________  
+**Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
+**Data de Conclusão:** ___________  
 **Observacoes:** ___________
 
 ---
 
-## FASE 8: Testes E2E e ValidaÃ§Ã£o Final âŒ
+## FASE 8: Testes E2E e Validação Final ❌
 
 ### 8.1 Suite de Testes Playwright
 - [ ] **Testes por papel**
@@ -316,122 +316,122 @@
   - [ ] Tenant Admin completo
   - [ ] Operador completo
 
-- [ ] **Testes de integraÃ§Ã£o**
+- [ ] **Testes de integração**
   - [ ] Fluxo completo E2E
-  - [ ] IntegraÃ§Ã£o n8n
+  - [ ] Integração n8n
   - [ ] Storage de arquivos
 
 ### 8.2 Testes de Performance
 - [ ] **Load testing**
-  - [ ] MÃºltiplos jobs simultÃ¢neos
+  - [ ] Múltiplos jobs simultâneos
   - [ ] Stress test de upload
   - [ ] Performance de queries
 
-- [ ] **MÃ©tricas de qualidade**
+- [ ] **Métricas de qualidade**
   - [ ] Cobertura de testes > 80%
   - [ ] Tempo de resposta < 3s
-  - [ ] Zero vazamentos de memÃ³ria
+  - [ ] Zero vazamentos de memória
 
-### 8.3 ValidaÃ§Ã£o Final
-- [ ] **CritÃ©rios de aceite**
+### 8.3 Validação Final
+- [ ] **Critérios de aceite**
   - [ ] Todos os testes passando
   - [ ] Performance dentro do SLA
-  - [ ] SeguranÃ§a auditada
-  - [ ] DocumentaÃ§Ã£o completa
+  - [ ] Segurança auditada
+  - [ ] Documentação completa
 
-### CritÃ©rios de Aceite - Fase 8
-- [ ] âœ… 100% dos testes E2E passando
-- [ ] âœ… Performance validada
-- [ ] âœ… SeguranÃ§a auditada
-- [ ] âœ… DocumentaÃ§Ã£o completa
+### Critérios de Aceite - Fase 8
+- [ ] ✅ 100% dos testes E2E passando
+- [ ] ✅ Performance validada
+- [ ] ✅ Segurança auditada
+- [ ] ✅ Documentação completa
 
-**Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
-**Data de ConclusÃ£o:** ___________  
+**Status:** ❌ Não Iniciado | 🔄 Em Progresso | ✅ Concluído  
+**Data de Conclusão:** ___________  
 **Observacoes:** ___________
 
 ---
 
 ## Checklist de Entrega Final
 
-### ðŸ“‹ DocumentaÃ§Ã£o
+### 📋 Documentação
 - [ ] README.md atualizado
-- [ ] DocumentaÃ§Ã£o de API
-- [ ] Guia de instalaÃ§Ã£o
-- [ ] Manual do usuÃ¡rio
-- [ ] DocumentaÃ§Ã£o tÃ©cnica
+- [ ] Documentação de API
+- [ ] Guia de instalação
+- [ ] Manual do usuário
+- [ ] Documentação técnica
 
-### ðŸ”§ ConfiguraÃ§Ã£o
-- [ ] VariÃ¡veis de ambiente documentadas
+### 🔧 Configuração
+- [ ] Variáveis de ambiente documentadas
 - [ ] Docker Compose configurado
 - [ ] Scripts de deploy
-- [ ] ConfiguraÃ§Ã£o de CI/CD
+- [ ] Configuração de CI/CD
 
-### ðŸ›¡ï¸ SeguranÃ§a
-- [ ] Auditoria de seguranÃ§a
-- [ ] Testes de penetraÃ§Ã£o
-- [ ] ConfiguraÃ§Ã£o de HTTPS
+### 🛡️ Segurança
+- [ ] Auditoria de segurança
+- [ ] Testes de penetração
+- [ ] Configuração de HTTPS
 - [ ] Backup e recovery
 
-### ðŸ“Š Monitoramento
+### 📊 Monitoramento
 - [ ] Logs estruturados
-- [ ] MÃ©tricas de performance
+- [ ] Métricas de performance
 - [ ] Alertas configurados
 - [ ] Dashboard de monitoramento
 
-### ðŸš€ Deploy
+### 🚀 Deploy
 - [ ] Ambiente de staging
-- [ ] Deploy de produÃ§Ã£o
+- [ ] Deploy de produção
 - [ ] Rollback testado
-- [ ] Monitoramento pÃ³s-deploy
+- [ ] Monitoramento pós-deploy
 
 ---
 
-## MÃ©tricas de Qualidade
+## Métricas de Qualidade
 
 ### Cobertura de Testes
-- **UnitÃ¡rios:** ___% (Meta: >80%)
-- **IntegraÃ§Ã£o:** ___% (Meta: >70%)
+- **Unitários:** ___% (Meta: >80%)
+- **Integração:** ___% (Meta: >70%)
 - **E2E:** ___% (Meta: >90%)
 
 ### Performance
-- **Tempo de resposta mÃ©dio:** ___ms (Meta: <500ms)
+- **Tempo de resposta médio:** ___ms (Meta: <500ms)
 - **P95 de queries:** ___ms (Meta: <1000ms)
 - **Throughput:** ___ req/s (Meta: >100 req/s)
 
-### SeguranÃ§a
-- **Vulnerabilidades crÃ­ticas:** ___ (Meta: 0)
+### Segurança
+- **Vulnerabilidades críticas:** ___ (Meta: 0)
 - **Vulnerabilidades altas:** ___ (Meta: 0)
-- **Score de seguranÃ§a:** ___/100 (Meta: >90)
+- **Score de segurança:** ___/100 (Meta: >90)
 
 ---
 
-## Notas e ObservaÃ§Ãµes
+## Notas e Observações
 
-### DecisÃµes TÃ©cnicas
+### Decisões Técnicas
 - [ ] Arquitetura documentada
-- [ ] PadrÃµes de cÃ³digo definidos
-- [ ] ConvenÃ§Ãµes de nomenclatura
+- [ ] Padrões de código definidos
+- [ ] Convenções de nomenclatura
 - [ ] Estrutura de pastas padronizada
 
 ### Riscos Identificados
-- [ ] DependÃªncias externas mapeadas
+- [ ] Dependências externas mapeadas
 - [ ] Pontos de falha identificados
-- [ ] Planos de contingÃªncia
-- [ ] EstratÃ©gias de mitigaÃ§Ã£o
+- [ ] Planos de contingência
+- [ ] Estratégias de mitigação
 
-### PrÃ³ximos Passos
-- [ ] Roadmap pÃ³s-MVP
+### Próximos Passos
+- [ ] Roadmap pós-MVP
 - [ ] Melhorias identificadas
-- [ ] Feedback dos usuÃ¡rios
-- [ ] Plano de manutenÃ§Ã£o
+- [ ] Feedback dos usuários
+- [ ] Plano de manutenção
 
 ---
 
-**Ãšltima AtualizaÃ§Ã£o:** [Data]  
-**PrÃ³xima RevisÃ£o:** [Data]  
-**ResponsÃ¡vel:** [Nome]  
+**Última Atualização:** [Data]  
+**Próxima Revisão:** [Data]  
+**Responsável:** [Nome]  
 
-> **Nota:** Este checklist deve ser atualizado a cada tarefa concluÃ­da e revisado semanalmente para acompanhar o progresso do projeto.
+> **Nota:** Este checklist deve ser atualizado a cada tarefa concluída e revisado semanalmente para acompanhar o progresso do projeto.
 
 
 

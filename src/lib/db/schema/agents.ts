@@ -1,8 +1,7 @@
-import { sql } from "drizzle-orm";
+﻿import { sql } from "drizzle-orm";
 import {
   index,
   jsonb,
-  numeric,
   pgTable,
   text,
   timestamp,
@@ -10,44 +9,56 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { tenants } from "./tenants";
+import { user } from "./auth";
 
-export type AgentOutputType = "structured" | "text" | "html";
+export type AgentKind = "ocr" | "structured" | "translator" | "render";
 
 export const agents = pgTable(
   "agents",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
-      .notNull()
-      .references(() => tenants.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    type: text("type").notNull(),
-    model: text("model"),
-    temperature: numeric("temperature", { precision: 3, scale: 2 })
-      .default(sql`0`)
+    kind: text("kind")
+      .$type<AgentKind>()
       .notNull(),
-    systemPrompt: text("system_prompt"),
-    systemMessage: text("system_message"),
-    provider: text("provider"),
-    outputType: text("output_type")
-      .$type<AgentOutputType>()
-      .default("structured")
-      .notNull(),
-    webhookUrl: text("webhook_url"),
-    tokenRefOverride: text("token_ref_override"),
-    responsibleKeys: jsonb("responsible_keys")
-      .$type<string[]>()
-      .default(sql`'[]'::jsonb`)
-      .notNull(),
-    metadata: jsonb("metadata")
+    systemPrompt: text("system_prompt").notNull(),
+    inputExample: text("input_example"),
+    outputSchemaJson: jsonb("output_schema_json")
       .$type<Record<string, unknown>>()
       .default(sql`'{}'::jsonb`)
+      .notNull(),
+    defaultProvider: text("default_provider")
+      .default("openai")
+      .notNull(),
+    defaultModel: text("default_model")
+      .default("gpt-4.1-mini")
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    tenantNameIdx: index("agents_tenant_name_idx").on(table.tenantId, table.name),
+    kindNameIdx: uniqueIndex("agents_kind_name_idx").on(table.kind, table.name),
+  })
+);
+
+export const agentAudit = pgTable(
+  "agent_audit",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    agentId: uuid("agent_id")
+      .notNull()
+      .references(() => agents.id, { onDelete: "cascade" }),
+    changedBy: text("changed_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    diff: jsonb("diff")
+      .$type<Record<string, unknown>>()
+      .default(sql`'{}'::jsonb`)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    agentIdx: index("agent_audit_agent_idx").on(table.agentId),
   })
 );
 

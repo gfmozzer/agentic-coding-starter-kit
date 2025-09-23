@@ -50,6 +50,30 @@ function resolveTenant(session?: SessionRecord | null): string | undefined {
     : undefined;
 }
 
+
+function normalizeEmail(value?: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  return normalized.length > 0 ? normalized : null;
+}
+
+function isSuperAdminEmail(email: string | null): boolean {
+  if (!email) {
+    return false;
+  }
+  const configured = process.env.SUPER_ADMIN_EMAILS;
+  if (!configured) {
+    return false;
+  }
+  const allowed = configured
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter((item) => item.length > 0);
+  return allowed.includes(email);
+}
+
 function mapUser(user?: UserRecord) {
   return {
     name: user?.name ?? null,
@@ -70,9 +94,15 @@ async function loadSessionInternal(): Promise<SessionContext | null> {
       return null;
     }
 
+    const baseRole = resolveRole(session.session);
+    const userEmail = normalizeEmail(session.user?.email ?? null);
+    const role: AppRole = baseRole === "super-admin" || !isSuperAdminEmail(userEmail)
+      ? baseRole
+      : "super-admin";
+
     return {
       userId: session.session.userId,
-      role: resolveRole(session.session),
+      role,
       tenantId: resolveTenant(session.session),
       user: mapUser(session.user),
     };

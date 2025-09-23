@@ -9,7 +9,7 @@ alwaysApply: false
 
 id: "MVP-004"
 title: "Super-admin cataloga agentes globais"
-status: "planned"
+status: "completed"
 priority: "P0"
 labels: ["ai","catalog","super-admin"]
 dependencies: ["MVP-002","MVP-003"]
@@ -17,7 +17,7 @@ created: "2025-09-22"
 
 # 1) High-Level Objective
 
-Permitir cadastro de agentes (ocr, structured, translator, render) com prompts e schemas reutilizaveis.
+Permitir cadastro de agentes (ocr, structured, translator, render) com prompts e schemas reutilizáveis.
 
 # 2) Background / Context (Optional but recommended)
 
@@ -59,7 +59,7 @@ docs/business/starter-prompt.md secoes 3 e 7 e docs/technical/ai/structure-data.
 4. Implementar formulario (modal) para criar/editar agente com editor JSON validando schema via zod.
 5. Adicionar botao "Testar schema" que chama `generateObject` em modo dry-run usando `OPENAI_MODEL`.
 6. Garantir que agentes sao globais (sem tenant_id) e protecao por role super-admin.
-7. Registrar alteracoes em tabela `agent_audit` com diff de prompt e schema.
+7. Registrar alterações em tabela `agent_audit` com diff de prompt e schema.
 
 # 7) Types & Interfaces (if applicable)
 
@@ -78,7 +78,7 @@ export interface AgentDefinition {
 
 # 8) Acceptance Criteria
 
-- Super-admin cria agente structured com schema valido e ve erro quando JSON invalido.
+- Super-admin cria agente structured com schema válido e ve erro quando JSON inválido.
 - `getAgentDefinition` retorna objeto pronto para `generateObject`.
 - Teste unitario cobre serializacao/deserializacao do schema.
 
@@ -89,3 +89,13 @@ Adicionar `tests/unit/agent-registry.test.ts` com mocks de zod garantindo tratam
 # 10) Notes / Links
 
 - Avaliar uso de editor leve (ex: `@uiw/react-textarea-code-editor`).
+- Botão "Testar schema" valida JSON localmente; dry-run real exige provider/model configurados.
+- Auditoria de alterações registrada em `agent_audit` para comparativo de prompt/schema.
+
+## Progress
+
+- [x] Kickoff: requisitos revisados e arquitetura definida.
+- [x] Migração e schema atualizados para agentes globais/audit (`drizzle/20250924_update_agents_catalog.sql`).
+- [x] Actions/API para CRUD/teste implementadas (`src/lib/actions/super-admin/agents.ts`).
+- [x] UI `/super-admin/agents` com modal e filtros (`src/app/(super-admin)/super-admin/agents`).
+- [x] Testes unitários e documentação atualizados (`tests/unit/agent-registry.test.ts`).

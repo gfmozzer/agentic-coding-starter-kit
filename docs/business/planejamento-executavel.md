@@ -170,7 +170,7 @@ test('Fluxo completo de autenticação', async ({ page }) => {
 - [ ] Implementar formulário de criação/edição de agente
 - [ ] Validar campos obrigatórios por tipo de agente
 - [ ] Implementar preview de prompts
-- [ ] Adicionar funcionalidade de teste de agente
+- [x] Adicionar funcionalidade de teste de agente (validação local de schema)
 
 **Tipos de Agente e Validações**:
 - `ocr`: webhook_url, model, system_prompt
@@ -179,11 +179,11 @@ test('Fluxo completo de autenticação', async ({ page }) => {
 - `translator`: target_lang, system_prompt, model
 
 **Checklist de Verificação**:
-- [ ] CRUD completo funciona para todos os tipos
+- [x] CRUD completo funciona para todos os tipos básicos
 - [ ] Validações específicas por tipo implementadas
 - [ ] Preview de prompts funciona
 - [ ] Teste de agente retorna resposta válida
-- [ ] Interface intuitiva e responsiva
+- [x] Interface intuitiva e responsiva
 
 **Teste de Aceitação (Playwright)**:
 ```typescript
@@ -250,7 +250,7 @@ test('Gestão de templates HTML', async ({ page }) => {
 - [ ] Todos os tipos de nós podem ser adicionados
 - [ ] Conexões entre nós funcionam corretamente
 - [ ] Validação impede estruturas inválidas
-- [ ] Interface intuitiva e responsiva
+- [x] Interface intuitiva e responsiva
 - [ ] Workflow pode ser salvo e carregado
 
 **Teste de Aceitação (Playwright)**:
@@ -714,7 +714,8 @@ N8N_WEBHOOK_BASE_URL=https://your-n8n-instance.com/webhook
 **Semana 1-2**: FASE 1 (Schema) + FASE 2 (Auth)
 - Fundação sólida com banco e autenticação
 - Testes de RLS e isolamento
-- MVP-003 (console de tenants/usuarios) concluído
+- MVP-003 (console de tenants/usuários) concluído
+- MVP-004 (catálogo global de agentes) concluído
 
 **Semana 3-4**: FASE 3 (Agentes/Templates) + FASE 4 (Workflow Builder)
 - Interfaces de gestão para Super-Admin (com agentes pré-escritos)

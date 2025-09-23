@@ -16,3 +16,4 @@ export interface TenantMember {
   createdAt: Date;
   updatedAt: Date;
 }
+
