@@ -225,8 +225,8 @@ BEGIN
     EXECUTE format('
       DROP POLICY IF EXISTS tenant_isolation ON %I;
       CREATE POLICY tenant_isolation ON %I
-        USING (tenant_id = current_setting('app.tenant_id')::uuid)
-        WITH CHECK (tenant_id = current_setting('app.tenant_id')::uuid);
+        USING (tenant_id = current_setting(''app.tenant_id'')::uuid)
+        WITH CHECK (tenant_id = current_setting(''app.tenant_id'')::uuid);
     ', tbl, tbl);
   END LOOP;
 END $$;

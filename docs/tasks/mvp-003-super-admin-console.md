@@ -8,7 +8,7 @@ alwaysApply: false
 
 id: "MVP-003"
 title: "Super-admin gerencia tenants e usuarios"
-status: "in_progress"
+status: "completed"
 priority: "P0"
 labels: ["ui","admin","multitenant"]
 dependencies: ["MVP-001","MVP-002"]
@@ -44,9 +44,13 @@ Fluxo descrito na secao 3 do starter-prompt exige esse console.
 
 **End state (must exist after completion):**
 
-- src/app/(super-admin)/tenants/page.tsx
-- src/app/(super-admin)/tenants/[tenantId]/users/page.tsx
+- src/app/(super-admin)/super-admin/tenants/page.tsx
+- src/app/(super-admin)/super-admin/tenants/tenants-client.tsx
+- src/app/(super-admin)/super-admin/tenants/[tenantId]/users/page.tsx
+- src/app/(super-admin)/super-admin/tenants/[tenantId]/users/users-client.tsx
 - src/lib/actions/super-admin/tenants.ts
+- src/lib/actions/super-admin/types.ts
+- drizzle/20250923_add_tenant_invites.sql
 - tests/e2e/super-admin-tenants.spec.ts
 
 # 6) Low-Level Steps (Ordered, information-dense)
@@ -83,10 +87,19 @@ Criar teste `tests/e2e/super-admin-tenants.spec.ts` que usa login simulado para 
 # 10) Notes / Links
 
 - Considerar adicionar logs em `docs/runbooks` posteriormente.
+- Tabela `tenant_invites` criada com RLS para convites pendentes (ver `drizzle/20250923_add_tenant_invites.sql`).
+- Fluxos de server action dependem de sessao `super-admin`; paginas exigem `POSTGRES_URL` configurada.
 ## Progress
 
 - [x] Kickoff: requisitos revisados e contexto carregado.
-- [ ] Lista de tenants com contagem de membros implementada.
-- [ ] Modais e server actions de criacao/edicao ativos.
-- [ ] Gestao de usuarios por tenant concluida.
-- [ ] Playwright e2e cobrindo fluxo principal.
+- [x] Lista de tenants com contagem de membros implementada (TenantsClient + withTenantContext).
+- [x] Modais e server actions de criacao/edicao ativos (upsertTenantAction com validacoes Zod).
+- [x] Gestao de usuarios por tenant concluida (membros + convites em `/super-admin/tenants/[tenantId]/users`).
+- [x] Playwright e2e cobrindo fluxo principal (`tests/e2e/super-admin-tenants.spec.ts`, requer sessao de super-admin).
+
+
+- [x] Kickoff: requisitos revisados e contexto carregado.
+- [x] Kickoff: requisitos revisados e contexto carregado.
+- [x] Lista de tenants com contagem de membros implementada (TenantsClient + withTenantContext).
+- [x] Modais e server actions de criacao/edicao ativos (upsertTenantAction com validacoes Zod).
+- [x] Gestao de usuarios por tenant concluida (membros + convites em `/super-admin/tenants/[tenantId]/users`).

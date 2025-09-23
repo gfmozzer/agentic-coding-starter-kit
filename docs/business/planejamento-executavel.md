@@ -29,21 +29,21 @@ Sistema multi-tenant para tradução de documentos com workflows compostos por a
 **Descrição**: Criar todas as tabelas necessárias com RLS por tenant_id
 
 **Subtarefas**:
-- [ ] Criar tabela `tenants` (id, name, settings, created_at)
-- [ ] Criar tabela `users` com tenant_id e roles (super_admin, tenant_admin, operator)
-- [ ] Criar tabela `agents` (id, tenant_id, name, type, model, prompts, etc.)
-- [ ] Criar tabela `templates` (id, tenant_id, name, html_content, variables)
-- [ ] Criar tabela `workflows` (id, tenant_id, name, steps_json, is_global)
-- [ ] Criar tabela `jobs` (id, tenant_id, workflow_id, status, pdf_url, results)
-- [ ] Criar tabela `review_sessions` (id, job_id, gate_id, keys_data, status)
-- [ ] Criar tabela `key_audit` (id, session_id, key_name, old_value, new_value, source_agent_id)
+- [x] Criar tabela `tenants` (id, name, settings, created_at)
+- [x] Criar tabela `users` com tenant_id e roles (super_admin, tenant_admin, operator)
+- [x] Criar tabela `agents` (id, tenant_id, name, type, model, prompts, etc.)
+- [x] Criar tabela `templates` (id, tenant_id, name, html_content, variables)
+- [x] Criar tabela `workflows` (id, tenant_id, name, steps_json, is_global)
+- [x] Criar tabela `jobs` (id, tenant_id, workflow_id, status, pdf_url, results)
+- [x] Criar tabela `review_sessions` (id, job_id, gate_id, keys_data, status)
+- [x] Criar tabela `key_audit` (id, session_id, key_name, old_value, new_value, source_agent_id)
 
 **Checklist de Verificação**:
-- [ ] Todas as tabelas têm tenant_id (exceto tenants e users globais)
-- [ ] RLS policies criadas para cada tabela
-- [ ] Índices criados em tenant_id e chaves estrangeiras
-- [ ] Constraints de integridade referencial implementadas
-- [ ] Migrações Drizzle executam sem erro
+- [x] Todas as tabelas têm tenant_id (exceto tenants e users globais)
+- [x] RLS policies criadas para cada tabela
+- [x] Índices criados em tenant_id e chaves estrangeiras
+- [x] Constraints de integridade referencial implementadas
+- [x] Migrações Drizzle executam sem erro
 
 **Teste de Aceitação (Playwright)**:
 ```typescript
@@ -59,17 +59,17 @@ test('Schema multi-tenant com RLS', async ({ page }) => {
 **Descrição**: Implementar políticas de segurança por tenant
 
 **Subtarefas**:
-- [ ] Habilitar RLS em todas as tabelas multi-tenant
-- [ ] Criar policy SELECT com tenant_id = current_tenant()
-- [ ] Criar policy INSERT/UPDATE/DELETE com tenant_id = current_tenant()
-- [ ] Implementar função current_tenant() no PostgreSQL
-- [ ] Configurar context de tenant_id nas conexões
+- [x] Habilitar RLS em todas as tabelas multi-tenant
+- [x] Criar policy SELECT com tenant_id = current_tenant()
+- [x] Criar policy INSERT/UPDATE/DELETE com tenant_id = current_tenant()
+- [x] Implementar função current_tenant() no PostgreSQL
+- [x] Configurar context de tenant_id nas conexões
 
 **Checklist de Verificação**:
-- [ ] RLS ativo em todas as tabelas relevantes
-- [ ] Policies testadas para cada operação CRUD
-- [ ] Função current_tenant() retorna valor correto
-- [ ] Isolamento entre tenants garantido
+- [x] RLS ativo em todas as tabelas relevantes
+- [x] Policies testadas para cada operação CRUD
+- [x] Função current_tenant() retorna valor correto
+- [x] Isolamento entre tenants garantido
 
 **Teste de Aceitação (Playwright)**:
 ```typescript
@@ -92,14 +92,14 @@ test('RLS impede acesso cruzado entre tenants', async ({ page }) => {
 - [ ] Criar middleware de autenticação com tenant_id
 - [ ] Implementar verificação de papéis (super_admin, tenant_admin, operator)
 - [ ] Criar HOC para proteção de rotas por papel
-- [ ] Implementar context de tenant atual
-- [ ] Configurar redirecionamentos baseados em papel
+- [x] Implementar context de tenant atual
+- [x] Configurar redirecionamentos baseados em papel
 
 **Checklist de Verificação**:
 - [ ] Middleware bloqueia acesso não autorizado
 - [ ] Papéis validados corretamente
 - [ ] Context de tenant disponível em toda aplicação
-- [ ] Redirecionamentos funcionam para cada papel
+- [x] Redirecionamentos funcionam para cada papel
 - [ ] Sessões mantêm tenant_id consistente
 
 **Teste de Aceitação (Playwright)**:
@@ -137,6 +137,24 @@ test('Fluxo completo de autenticação', async ({ page }) => {
   // Fazer logout e verificar limpeza
 });
 ```
+
+
+#### 2.3 Console Super-Admin (MVP-003)
+**Descrição**: Disponibilizar painel para o super-admin gerenciar tenants, membros e convites.
+
+**Subtarefas**:
+- [x] Listar tenants com contagem de membros e convites pendentes
+- [x] Criar/editar tenants com validação e slug automático
+- [x] Gerenciar membros por tenant (atribuir papel, remover)
+- [x] Registrar convites com controle de expiração e status
+
+**Checklist de Verificação**:
+- [x] Rotas /super-admin/tenants protegidas por papel
+- [x] Server actions exigem sessão super-admin
+- [x] Atualizações refletem no UI após revalidatePath
+
+**Teste de Aceitação (Playwright)**:
+- [x] `tests/e2e/super-admin-tenants.spec.ts` cobre criação de tenant e convite pendente (requer storage state de super-admin)
 
 ---
 
@@ -696,6 +714,7 @@ N8N_WEBHOOK_BASE_URL=https://your-n8n-instance.com/webhook
 **Semana 1-2**: FASE 1 (Schema) + FASE 2 (Auth)
 - Fundação sólida com banco e autenticação
 - Testes de RLS e isolamento
+- MVP-003 (console de tenants/usuarios) concluído
 
 **Semana 3-4**: FASE 3 (Agentes/Templates) + FASE 4 (Workflow Builder)
 - Interfaces de gestão para Super-Admin (com agentes pré-escritos)

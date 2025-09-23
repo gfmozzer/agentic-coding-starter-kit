@@ -2,8 +2,8 @@
 
 ## Status Geral do Projeto
 
-**Progresso Atual:** 1/8 Fases Concluidas  
-**Ultima Atualizacao:** 23/09/2025  
+**Progresso Atual:** 1/8 Fases concluidas | Fase 2 em andamento (MVP-003)  
+**Ultima Atualizacao:** 24/09/2025  
 **Responsavel:** Assistente AI  
 
 ---
@@ -54,6 +54,7 @@
   - [ ] GestÃ£o de agentes globais
   - [ ] CriaÃ§Ã£o de workflows base
   - [ ] Middleware de autorizaÃ§Ã£o
+  - [x] Console de tenants/usuarios (MVP-003)
 
 - [ ] **Tenant Admin**
   - [ ] Acesso restrito ao tenant
@@ -86,7 +87,7 @@
 
 **Status:** âŒ NÃ£o Iniciado | ðŸ”„ Em Progresso | âœ… ConcluÃ­do  
 **Data de ConclusÃ£o:** ___________  
-**Observacoes:** Layouts por papel configurados com sidebar/topbar e redirecionamentos baseados em sessao. Console de super-admin para tenants/usuarios em desenvolvimento (MVP-003).
+**Observacoes:** Layouts por papel configurados com sidebar/topbar e redirecionamentos baseados em sessao. Console de super-admin para tenants/usuarios com CRUD de tenants, membros ativos e convites pendentes (MVP-003 concluido).
 
 ---
 

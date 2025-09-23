@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+﻿import { sql } from "drizzle-orm";
 import {
   check,
   jsonb,
@@ -50,6 +50,45 @@ export const tenantMembers = pgTable(
     roleCheck: check(
       "tenant_members_role_check",
       sql`${table.role} in ('tenant-admin', 'operator', 'super-admin')`
+    ),
+  })
+);
+
+export type TenantInviteStatus = "pending" | "accepted" | "expired" | "cancelled";
+
+export const tenantInvites = pgTable(
+  "tenant_invites",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role").notNull(),
+    status: text("status")
+      .$type<TenantInviteStatus>()
+      .default("pending")
+      .notNull(),
+    token: text("token").notNull(),
+    invitedBy: text("invited_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantEmailIdx: uniqueIndex("tenant_invites_tenant_email_idx").on(
+      table.tenantId,
+      table.email
+    ),
+    roleCheck: check(
+      "tenant_invites_role_check",
+      sql`${table.role} in ('tenant-admin', 'operator', 'super-admin')`
+    ),
+    statusCheck: check(
+      "tenant_invites_status_check",
+      sql`${table.status} in ('pending', 'accepted', 'expired', 'cancelled')`
     ),
   })
 );
