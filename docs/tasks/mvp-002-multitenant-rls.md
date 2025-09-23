@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Add tenant schema with row level security in the database."
 globs:
   - src/lib/db/**
@@ -8,7 +8,7 @@ alwaysApply: false
 
 id: "MVP-002"
 title: "Configurar tenants e politicas RLS"
-status: "planned"
+status: "in_progress"
 priority: "P0"
 labels: ["database","security","multitenant"]
 dependencies: ["MVP-001"]
@@ -46,9 +46,12 @@ Requisito direto da secao 2 do starter-prompt.
 **End state (must exist after completion):**
 
 - drizzle/2025XXXX_add_tenants.sql
-- src/lib/db/schema/tenants.ts
-- src/lib/db/schema/tenant-members.ts
+- src/lib/db/schema/tenants.ts (exports tenant_members)
 - src/lib/db/policies/tenant-rls.sql
+- src/lib/db/types.ts
+- src/lib/db/index.ts
+- tests/db/tenant-rls.test.ts
+- drizzle/seeds/tenant_demo.sql
 
 # 6) Low-Level Steps (Ordered, information-dense)
 
@@ -71,7 +74,7 @@ export interface Tenant {
   slug: string;
   createdAt: Date;
 }
-export type TenantRole = "super-admin" | "operator";
+export type TenantRole = "super-admin" | "tenant-admin" | "operator";
 ```
 
 # 8) Acceptance Criteria
@@ -87,3 +90,13 @@ Adicionar teste `tests/db/tenant-rls.test.ts` que valida acesso negado sem conte
 # 10) Notes / Links
 
 - Reutilizar abordagem do blog Supabase sobre RLS (documentar referencia em docs/features futuramente).
+
+## Progress
+
+- [x] Migration 20250922_add_multitenant_schema.sql created with RLS policies.
+- [x] Schema modules and types exported via src/lib/db/index.ts.
+- [x] Helper withTenantContext ensures SET LOCAL app.tenant_id.
+- [x] RLS smoke test scaffolded in tests/db/tenant-rls.test.ts (skips without POSTGRES_URL).
+- [ ] Seed script for demo tenant executed in environments.
+- [ ] Automated db tests run against provisioned database.
+
