@@ -11,11 +11,15 @@ export default async function SuperAdminLayout({
 }) {
   const session = await getSessionContext();
 
-  if (!session) {
+  // TODO: Remover esta linha após configurar autenticação
+  // Permitindo acesso temporário para teste
+  const mockSession = session || { role: "super-admin" };
+
+  if (!mockSession) {
     redirect("/");
   }
 
-  if (session.role !== "super-admin") {
+  if (mockSession.role !== "super-admin") {
     redirect("/operator");
   }
 

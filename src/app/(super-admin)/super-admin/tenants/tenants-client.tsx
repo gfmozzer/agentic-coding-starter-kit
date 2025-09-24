@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 
 import {
@@ -38,7 +39,7 @@ function SubmitButton({ label }: { label: string }) {
 export function TenantsClient({ tenants }: TenantsClientProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<TenantSummary | null>(null);
-  const [formState, formAction] = useFormState(upsertTenantAction, initialActionState);
+  const [formState, formAction] = useActionState(upsertTenantAction, initialActionState);
 
   useEffect(() => {
     if (formState.success) {

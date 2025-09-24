@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -163,7 +164,7 @@ export function TenantUsersClient({ tenant, members, invites }: TenantUsersClien
 function AddMemberForm({ tenantId }: { tenantId: string }) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("operator");
-  const [formState, formAction] = useFormState(assignTenantRoleAction, initialActionState);
+  const [formState, formAction] = useActionState(assignTenantRoleAction, initialActionState);
 
   useEffect(() => {
     if (formState.success) {

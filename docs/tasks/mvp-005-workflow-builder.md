@@ -9,7 +9,7 @@ alwaysApply: false
 
 id: "MVP-005"
 title: "Super-admin monta workflows com gates"
-status: "planned"
+status: "completed"
 priority: "P0"
 labels: ["workflow","super-admin","builder"]
 dependencies: ["MVP-004"]
@@ -92,3 +92,17 @@ export interface WorkflowStepBase {
 # 10) Notes / Links
 
 - Considerar salvar `input_from` diretamente em `workflow_steps` para facilitar validacao.
+
+## Progress
+
+- [x] Kickoff: requisitos revisados e contexto carregado.
+- [x] Schema e migração implementados (`drizzle/20250926_add_workflow_builder.sql`).
+- [x] Types e interfaces definidas (`src/lib/workflows/types.ts`).
+- [x] Core builder logic implementado (`src/lib/workflows/builder.ts`).
+- [x] Server actions para CRUD implementadas (`src/lib/actions/super-admin/workflows.ts`).
+- [x] UI `/super-admin/workflows` com listagem de templates.
+- [x] Builder UI completo (`/super-admin/workflows/[templateId]/builder`) com StepCard.
+- [x] Testes unitários passando (`tests/unit/workflow-serialization.test.ts`).
+- [x] Migração executada e sidebar atualizada.
+
+**Status**: ✅ **CONCLUÍDO** - Workflow builder funcionando com validação, UI completa e testes.

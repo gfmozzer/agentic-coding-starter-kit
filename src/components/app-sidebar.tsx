@@ -46,7 +46,7 @@ const superAdminNav: NavItem[] = [
   },
   {
     label: "Workflow Builder",
-    href: "/super-admin/workflow-builder",
+    href: "/super-admin/workflows",
     icon: Workflow,
   },
   {

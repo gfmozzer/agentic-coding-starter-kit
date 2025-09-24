@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,8 +59,8 @@ export function AgentsClient({ agents }: AgentsClientProps) {
   const [draft, setDraft] = useState<AgentDraft>(emptyDraft);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
 
-  const [formState, formAction] = useFormState(upsertAgentAction, initialActionState);
-  const [testState, testAction] = useFormState(testAgentSchemaAction, initialActionState);
+  const [formState, formAction] = useActionState(upsertAgentAction, initialActionState);
+  const [testState, testAction] = useActionState(testAgentSchemaAction, initialActionState);
   const [schemaTestMessage, setSchemaTestMessage] = useState<string | null>(null);
   const [schemaTestError, setSchemaTestError] = useState<string | null>(null);
   const filteredAgents = useMemo(() => {
