@@ -8,6 +8,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { tenants } from "./tenants";
+import { user } from "./auth";
 
 export const templates = pgTable(
   "templates",
@@ -39,3 +40,17 @@ export const templates = pgTable(
     ),
   })
 );
+
+// Global render templates managed by super-admin
+export const renderTemplates = pgTable("render_templates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  html: text("html").notNull(),
+  createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type RenderTemplate = typeof renderTemplates.$inferSelect;
+export type CreateRenderTemplate = typeof renderTemplates.$inferInsert;

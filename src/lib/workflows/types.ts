@@ -54,6 +54,8 @@ export interface WorkflowRenderStep extends WorkflowStepBase {
   type: "render";
   sourceStepId: string;
   templateId: string;
+  templateName?: string | null;
+  templateDescription?: string | null;
   config?: Record<string, unknown>;
 }
 

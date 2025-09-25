@@ -20,8 +20,8 @@ import type {
 interface RenderTemplateOption {
   id: string;
   name: string;
-  version: string;
-  tenantId: string;
+  description?: string;
+  updatedAt: string;
 }
 
 interface BuilderClientProps {
@@ -970,7 +970,7 @@ function StepCard({
                 <option value="">Selecione...</option>
                 {renderTemplates.map((template) => (
                   <option key={template.id} value={template.id}>
-                    {template.name} (v{template.version})
+                    {template.name}{template.description ? ` - ${template.description}` : ''}
                   </option>
                 ))}
               </select>

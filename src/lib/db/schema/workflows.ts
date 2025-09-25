@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -13,6 +15,7 @@ import {
 import { agents } from "./agents";
 import { user } from "./auth";
 import { tenants } from "./tenants";
+import { renderTemplates } from "./templates";
 
 export type WorkflowStepType =
   | "agent"
@@ -57,6 +60,9 @@ export const workflowSteps = pgTable(
     agentId: uuid("agent_id").references(() => agents.id, {
       onDelete: "restrict",
     }),
+    renderTemplateId: uuid("render_template_id").references(() => renderTemplates.id, {
+      onDelete: "restrict",
+    }),
     sourceStepId: text("source_step_id"),
     config: jsonb("config")
       .$type<Record<string, unknown>>()
@@ -69,6 +75,13 @@ export const workflowSteps = pgTable(
     templatePositionIdx: uniqueIndex("workflow_steps_template_position_idx").on(
       table.templateId,
       table.position
+    ),
+    renderTemplateIdx: index("workflow_steps_render_template_idx").on(
+      table.renderTemplateId
+    ),
+    renderTemplateCheck: check(
+      "workflow_steps_render_template_check",
+      sql`${table.type} <> 'render' OR ${table.renderTemplateId} IS NOT NULL`
     ),
   })
 );

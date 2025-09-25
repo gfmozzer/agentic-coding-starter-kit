@@ -10,6 +10,7 @@ import {
   workflowSteps,
   workflowTemplates,
 } from "@/lib/db/schema/workflows";
+import { renderTemplates } from "@/lib/db/schema/templates";
 import type { WorkflowStep } from "@/lib/workflows/types";
 
 interface RuntimeWorkflowTemplate {
@@ -34,6 +35,7 @@ class WorkflowBuilderError extends Error {
 type StepRow = typeof workflowSteps.$inferSelect;
 type GroupRow = typeof workflowStepGroups.$inferSelect;
 type ReviewRow = typeof workflowStepReviews.$inferSelect;
+type RenderTemplateRow = typeof renderTemplates.$inferSelect;
 
 function ensure(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -58,6 +60,7 @@ function toWorkflowStep(
   groupMembers: GroupRow[],
   reviewRow: ReviewRow | undefined,
   stepsById: Map<string, StepRow>,
+  renderTemplatesById: Map<string, RenderTemplateRow>,
   renderCount: { value: number }
 ): WorkflowStep {
   const base = {
@@ -169,17 +172,20 @@ function toWorkflowStep(
       );
 
       const source = stepsById.get(step.sourceStepId);
-      ensure(source, `Passo de origem ${step.sourceStepId} n�o encontrado para render ${step.id}.`);
+      ensure(source, `Passo de origem ${step.sourceStepId} nao encontrado para render ${step.id}.`);
       if (!(source.type === "translator" || source.type === "review_gate")) {
         throw new WorkflowBuilderError(
-          `Render ${step.id} deve referenciar translator ou review_gate (�ltima revis�o).`
+          `Render ${step.id} deve referenciar translator ou review_gate (ultima revisao).`
         );
       }
 
-      const templateId = (config.templateId as string | undefined) ?? "";
+      const templateId = step.renderTemplateId;
+      ensure(templateId, `Render ${step.id} precisa ter um render_template_id configurado.`);
+
+      const templateRow = renderTemplatesById.get(templateId);
       ensure(
-        templateId,
-        `Render ${step.id} precisa ter o template_id configurado.`
+        templateRow,
+        `Template ${templateId} nao encontrado para render ${step.id}.`
       );
 
       return {
@@ -187,8 +193,11 @@ function toWorkflowStep(
         type: "render",
         sourceStepId: step.sourceStepId,
         templateId,
+        templateName: templateRow.name,
+        templateDescription: templateRow.description ?? null,
         config,
       };
+
     }
     default: {
       const exhaustive: never = step.type as never;
@@ -220,7 +229,7 @@ export async function buildRuntimeWorkflow(templateId: string): Promise<RuntimeW
     .then((rows) => rows[0]);
 
   if (!template) {
-    throw new WorkflowBuilderError("Workflow template n�o encontrado.");
+    throw new WorkflowBuilderError("Workflow template não encontrado.");
   }
 
   const stepRows = await db
@@ -231,6 +240,7 @@ export async function buildRuntimeWorkflow(templateId: string): Promise<RuntimeW
       position: workflowSteps.position,
       label: workflowSteps.label,
       agentId: workflowSteps.agentId,
+      renderTemplateId: workflowSteps.renderTemplateId,
       sourceStepId: workflowSteps.sourceStepId,
       config: workflowSteps.config,
     })
@@ -242,7 +252,12 @@ export async function buildRuntimeWorkflow(templateId: string): Promise<RuntimeW
 
   const stepIds = stepRows.map((step) => step.id);
 
-  const [groupRows, reviewRows] = await Promise.all([
+  const renderTemplateIds = stepRows
+    .filter((step) => step.type === "render" && step.renderTemplateId)
+    .map((step) => step.renderTemplateId as string);
+  const uniqueRenderTemplateIds = Array.from(new Set(renderTemplateIds));
+
+  const [groupRows, reviewRows, renderTemplateRows] = await Promise.all([
     stepIds.length > 0
       ? db
           .select({
@@ -274,14 +289,33 @@ export async function buildRuntimeWorkflow(templateId: string): Promise<RuntimeW
           .from(workflowStepReviews)
           .where(inArray(workflowStepReviews.stepId, stepIds))
       : [],
+    uniqueRenderTemplateIds.length > 0
+      ? db
+          .select({
+            id: renderTemplates.id,
+            name: renderTemplates.name,
+            description: renderTemplates.description,
+            updatedAt: renderTemplates.updatedAt,
+          })
+          .from(renderTemplates)
+          .where(inArray(renderTemplates.id, uniqueRenderTemplateIds))
+      : [],
   ]);
 
   const reviewByStep = new Map(reviewRows.map((row) => [row.stepId, row]));
   const stepsById = new Map(stepRows.map((row) => [row.id, row]));
+  const renderTemplatesById = new Map(renderTemplateRows.map((row) => [row.id, row]));
   const renderCount = { value: 0 };
 
   const runtimeSteps: WorkflowStep[] = stepRows.map((step) =>
-    toWorkflowStep(step, groupRows, reviewByStep.get(step.id), stepsById, renderCount)
+    toWorkflowStep(
+      step,
+      groupRows,
+      reviewByStep.get(step.id),
+      stepsById,
+      renderTemplatesById,
+      renderCount
+    )
   );
 
   assertRenderLimit(renderCount.value);

@@ -1,33 +1,31 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+﻿import { desc } from "drizzle-orm";
 
-export default function TemplatesPage() {
+import { TemplatesClient } from "./templates-client";
+import { db } from "@/lib/db";
+import { renderTemplates } from "@/lib/db/schema/templates";
+
+export default async function TemplatesPage() {
+  const templates = await db
+    .select({
+      id: renderTemplates.id,
+      name: renderTemplates.name,
+      description: renderTemplates.description,
+      html: renderTemplates.html,
+      createdAt: renderTemplates.createdAt,
+      updatedAt: renderTemplates.updatedAt,
+    })
+    .from(renderTemplates)
+    .orderBy(desc(renderTemplates.updatedAt));
+
+  const formatted = templates.map((template) => ({
+    ...template,
+    createdAt: template.createdAt.toISOString(),
+    updatedAt: template.updatedAt.toISOString(),
+  }));
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Templates Globais</h2>
-          <p className="text-sm text-muted-foreground">
-            Defina HTML base e placeholders para renderizar certificados e documentos finais.
-          </p>
-        </div>
-        <Button size="sm">Novo template</Button>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Checklist do MVP</CardTitle>
-          <CardDescription>
-            Templates clonados por tenants devem permitir edicao de HTML e cabecalho.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          <ul className="list-disc list-inside space-y-1">
-            <li>Associar template aos workflows render.</li>
-            <li>Validar chaves exigidas pelo layout.</li>
-            <li>Persistir historico de revisoes.</li>
-          </ul>
-        </CardContent>
-      </Card>
+    <div className="mx-auto max-w-6xl space-y-8 p-6">
+      <TemplatesClient templates={formatted} />
     </div>
   );
 }

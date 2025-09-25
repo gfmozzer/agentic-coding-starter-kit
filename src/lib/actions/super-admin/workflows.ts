@@ -2,20 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { getSessionContext } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import {
   WorkflowReviewInputKind,
-  WorkflowStepType,
   workflowStepGroups,
   workflowStepReviews,
   workflowSteps,
   workflowTemplates,
 } from "@/lib/db/schema/workflows";
+import { workflowTemplateTenants } from "@/lib/db/schema/workflow-publishing";
 import { recordWorkflowAudit, buildRuntimeWorkflow } from "@/lib/workflows/builder";
-import { initialActionState } from "./agent-action-state";
 import type { ActionState } from "./agent-action-state";
 
 const stepIdSchema = z
@@ -74,7 +73,7 @@ const translatorStepSchema = baseStepSchema.extend({
 const renderStepSchema = baseStepSchema.extend({
   type: z.literal("render"),
   sourceStepId: z.string().min(1, "Informe o passo de origem."),
-  templateId: z.string().min(1, "Selecione um template."),
+  templateId: z.string().uuid("Selecione um template valido."),
   config: configSchema,
 });
 
@@ -198,7 +197,11 @@ function validateLogicalRules(steps: z.infer<typeof workflowStepSchema>[]) {
 function buildStepConfig(step: z.infer<typeof workflowStepSchema>) {
   const base = step.config ?? {};
   if (step.type === "render") {
-    return { ...base, templateId: step.templateId };
+    if (base && typeof base === "object") {
+      const copy = { ...(base as Record<string, unknown>) };
+      delete copy.templateId;
+      return copy;
+    }
   }
   return base;
 }
@@ -239,6 +242,7 @@ async function upsertWorkflowTemplate(
             : step.type === "translator"
             ? step.translatorAgentId
             : null,
+        renderTemplateId: step.type === "render" ? step.templateId : null,
         sourceStepId:
           step.type === "group"
             ? step.inputFrom
@@ -295,10 +299,17 @@ export async function saveWorkflowTemplateAction(
 
     const payloadRaw = formData.get("payload");
     if (typeof payloadRaw !== "string") {
-      return { error: "Payload inválido." };
+      return { error: "Payload invalido." };
     }
 
-    const parsedJson = JSON.parse(payloadRaw);
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(payloadRaw);
+    } catch (error) {
+      console.error("saveWorkflowTemplateAction: invalid JSON", error);
+      return { error: "Payload invalido." };
+    }
+
     const parsed = workflowPayloadSchema.safeParse(parsedJson);
     if (!parsed.success) {
       return {
@@ -308,13 +319,6 @@ export async function saveWorkflowTemplateAction(
     }
 
     const data = parsed.data;
-
-    // TODO: Remover mock quando as tabelas workflow estiverem criadas
-    // Mock temporário para demonstrar funcionalidade
-    console.log("Mock: Salvando workflow com dados:", data);
-    
-    /*
-    // Código real a ser usado quando o banco estiver configurado:
     const before = await buildRuntimeWorkflow(data.templateId).catch(() => null);
 
     await upsertWorkflowTemplate(data.templateId, data);
@@ -322,23 +326,24 @@ export async function saveWorkflowTemplateAction(
     const after = await buildRuntimeWorkflow(data.templateId);
 
     await recordWorkflowAudit(data.templateId, session?.userId ?? null, {
+      action: "template_saved",
       before,
       after,
     });
 
-    revalidatePath("/super-admin/workflows/[templateId]/builder", "page");
+    revalidatePath(`/super-admin/workflows/${data.templateId}/builder`);
     revalidatePath("/super-admin/workflows");
-    */
 
-    return { success: "Workflow salvo com sucesso (mock)." };
+    return { success: "Workflow salvo com sucesso." };
   } catch (error) {
     console.error("saveWorkflowTemplateAction", error);
     return {
       error:
-        error instanceof Error ? error.message : "Não foi possível salvar o workflow.",
+        error instanceof Error ? error.message : "Nao foi possivel salvar o workflow.",
     };
   }
 }
+
 
 export async function createWorkflowTemplateAction(
   _prevState: ActionState,
@@ -349,36 +354,35 @@ export async function createWorkflowTemplateAction(
     ensureSuperAdmin(session?.role);
 
     const name = formData.get("name")?.toString().trim() ?? "";
-    const description = formData.get("description")?.toString().trim();
+    const descriptionRaw = formData.get("description")?.toString().trim() ?? "";
 
     if (name.length < 3) {
       return { error: "Informe um nome com pelo menos 3 caracteres." };
     }
 
-    // TODO: Remover mock quando as tabelas workflow estiverem criadas
-    // Mock temporário para demonstrar funcionalidade
-    const mockId = "550e8400-e29b-41d4-a716-446655440003";
-    
-    /*
-    // Código real a ser usado quando o banco estiver configurado:
-    const now = new Date();
+    const description = descriptionRaw.length > 0 ? descriptionRaw : null;
+    const version = "v1";
+
     const [created] = await db
       .insert(workflowTemplates)
       .values({
         name,
-        description: description?.length ? description : null,
-        version: "v1",
-        createdAt: now,
-        updatedAt: now,
+        description,
+        version,
       })
       .returning({ id: workflowTemplates.id });
 
+    await recordWorkflowAudit(created.id, session?.userId ?? null, {
+      action: "template_created",
+      name,
+      version,
+    });
+
     revalidatePath("/super-admin/workflows");
-    */
 
     return {
-      success: "Template criado com sucesso (mock).",
-      fieldErrors: { redirectTo: `/super-admin/workflows/${mockId}/builder` },
+      success: "Template criado com sucesso.",
+      fieldErrors: { redirectTo: `/super-admin/workflows/${created.id}/builder` },
     };
   } catch (error) {
     console.error("createWorkflowTemplateAction", error);
@@ -386,8 +390,186 @@ export async function createWorkflowTemplateAction(
       error:
         error instanceof Error
           ? error.message
-          : "Não foi possível criar o template.",
+          : "Nao foi possivel criar o template.",
     };
   }
+}
+
+
+const publishSchema = z.object({
+  templateId: z.string().uuid("Template ID inválido"),
+  tenantId: z.string().uuid("Tenant ID inválido"),
+  action: z.enum(["publish", "unpublish", "set-default"]),
+  isDefault: z.coerce.boolean().optional(),
+});
+
+export async function publishWorkflowToTenantAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  try {
+    const session = await getSessionContext();
+    ensureSuperAdmin(session?.role);
+
+    const parsed = publishSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!parsed.success) {
+      return {
+        error: "Dados invalidos para publicacao",
+        fieldErrors: parseZodErrors(parsed.error),
+      };
+    }
+
+    const { templateId, tenantId, action, isDefault } = parsed.data;
+    const now = new Date();
+    let successMessage = "";
+
+    await db.transaction(async (tx) => {
+      if (action === "publish") {
+        const existing = await tx
+          .select({
+            id: workflowTemplateTenants.id,
+            isDefault: workflowTemplateTenants.isDefault,
+          })
+          .from(workflowTemplateTenants)
+          .where(
+            and(
+              eq(workflowTemplateTenants.workflowTemplateId, templateId),
+              eq(workflowTemplateTenants.tenantId, tenantId)
+            )
+          )
+          .limit(1)
+          .then((rows) => rows[0]);
+
+        const desiredDefault = Boolean(isDefault);
+        const shouldBeDefault = desiredDefault || (existing?.isDefault ?? false);
+
+        if (shouldBeDefault) {
+          await tx
+            .update(workflowTemplateTenants)
+            .set({ isDefault: false })
+            .where(
+              and(
+                eq(workflowTemplateTenants.workflowTemplateId, templateId),
+                sql`${workflowTemplateTenants.unpublishedAt} IS NULL`
+              )
+            );
+        }
+
+        await tx
+          .insert(workflowTemplateTenants)
+          .values({
+            workflowTemplateId: templateId,
+            tenantId,
+            isDefault: shouldBeDefault,
+            publishedBy: session?.userId ?? null,
+            publishedAt: now,
+            unpublishedAt: null,
+          })
+          .onConflictDoUpdate({
+            target: [
+              workflowTemplateTenants.workflowTemplateId,
+              workflowTemplateTenants.tenantId,
+            ],
+            set: {
+              isDefault: shouldBeDefault,
+              publishedBy: session?.userId ?? null,
+              publishedAt: now,
+              unpublishedAt: null,
+            },
+          });
+
+        await recordWorkflowAudit(templateId, session?.userId ?? null, {
+          action: "published_to_tenant",
+          tenantId,
+          isDefault: shouldBeDefault,
+        });
+
+        successMessage = "Workflow publicado com sucesso para o tenant!";
+      } else if (action === "unpublish") {
+        const result = await tx
+          .update(workflowTemplateTenants)
+          .set({ unpublishedAt: now, isDefault: false })
+          .where(
+            and(
+              eq(workflowTemplateTenants.workflowTemplateId, templateId),
+              eq(workflowTemplateTenants.tenantId, tenantId),
+              sql`${workflowTemplateTenants.unpublishedAt} IS NULL`
+            )
+          )
+          .returning({ id: workflowTemplateTenants.id });
+
+        if (result.length === 0) {
+          throw new Error("Workflow nao esta publicado para este tenant.");
+        }
+
+        await recordWorkflowAudit(templateId, session?.userId ?? null, {
+          action: "unpublished_from_tenant",
+          tenantId,
+        });
+
+        successMessage = "Workflow removido do tenant com sucesso!";
+      } else {
+        const existing = await tx
+          .select({ id: workflowTemplateTenants.id })
+          .from(workflowTemplateTenants)
+          .where(
+            and(
+              eq(workflowTemplateTenants.workflowTemplateId, templateId),
+              eq(workflowTemplateTenants.tenantId, tenantId),
+              sql`${workflowTemplateTenants.unpublishedAt} IS NULL`
+            )
+          )
+          .limit(1)
+          .then((rows) => rows[0]);
+
+        if (!existing) {
+          throw new Error("Publique o workflow para o tenant antes de definir como padrao.");
+        }
+
+        await tx
+          .update(workflowTemplateTenants)
+          .set({ isDefault: false })
+          .where(
+            and(
+              eq(workflowTemplateTenants.workflowTemplateId, templateId),
+              sql`${workflowTemplateTenants.unpublishedAt} IS NULL`
+            )
+          );
+
+        await tx
+          .update(workflowTemplateTenants)
+          .set({ isDefault: true, publishedBy: session?.userId ?? null })
+          .where(eq(workflowTemplateTenants.id, existing.id));
+
+        await recordWorkflowAudit(templateId, session?.userId ?? null, {
+          action: "set_default_tenant",
+          tenantId,
+        });
+
+        successMessage = "Tenant definido como padrao para este workflow!";
+      }
+    });
+
+    revalidatePath(`/super-admin/workflows/${templateId}/publish`);
+    revalidatePath("/super-admin/workflows");
+
+    return { success: successMessage };
+  } catch (error) {
+    console.error("publishWorkflowToTenantAction", error);
+    return {
+      error: error instanceof Error ? error.message : "Erro interno do servidor",
+    };
+  }
+}
+
+
+export async function unpublishWorkflowFromTenantAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  // This action can reuse the publish action with unpublish parameter
+  formData.set("action", "unpublish");
+  return publishWorkflowToTenantAction(_prevState, formData);
 }
 
