@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
-  initialActionState,
   publishWorkflowToTenantAction,
 } from "@/lib/actions/super-admin/workflows";
+import { initialActionState } from "@/lib/actions/super-admin/agent-action-state";
 
 interface TenantSummary {
   id: string;
@@ -194,9 +193,11 @@ export function PublishWorkflowClient({ templateId, workflow, tenants }: Publish
                       <div className="flex items-center justify-end gap-3">
                         <div className="flex items-center gap-2">
                           <label className="text-xs text-muted-foreground">Publicado</label>
-                          <Switch
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                             checked={tenant.isPublished}
-                            onCheckedChange={(checked) => handleTogglePublish(tenant, checked)}
+                            onChange={(event) => handleTogglePublish(tenant, event.target.checked)}
                             disabled={switchDisabled}
                           />
                         </div>

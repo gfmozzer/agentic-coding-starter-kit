@@ -243,6 +243,8 @@ export async function buildRuntimeWorkflow(templateId: string): Promise<RuntimeW
       renderTemplateId: workflowSteps.renderTemplateId,
       sourceStepId: workflowSteps.sourceStepId,
       config: workflowSteps.config,
+      createdAt: workflowSteps.createdAt,
+      updatedAt: workflowSteps.updatedAt,
     })
     .from(workflowSteps)
     .where(eq(workflowSteps.templateId, templateId))
@@ -285,6 +287,8 @@ export async function buildRuntimeWorkflow(templateId: string): Promise<RuntimeW
             title: workflowStepReviews.title,
             instructions: workflowStepReviews.instructions,
             config: workflowStepReviews.config,
+            createdAt: workflowStepReviews.createdAt,
+            updatedAt: workflowStepReviews.updatedAt,
           })
           .from(workflowStepReviews)
           .where(inArray(workflowStepReviews.stepId, stepIds))
@@ -304,7 +308,9 @@ export async function buildRuntimeWorkflow(templateId: string): Promise<RuntimeW
 
   const reviewByStep = new Map(reviewRows.map((row) => [row.stepId, row]));
   const stepsById = new Map(stepRows.map((row) => [row.id, row]));
-  const renderTemplatesById = new Map(renderTemplateRows.map((row) => [row.id, row]));
+  const renderTemplatesById = new Map<string, RenderTemplateRow>(
+    renderTemplateRows.map((row) => [row.id, row as RenderTemplateRow])
+  );
   const renderCount = { value: 0 };
 
   const runtimeSteps: WorkflowStep[] = stepRows.map((step) =>

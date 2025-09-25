@@ -1,7 +1,8 @@
 ﻿import sanitizeHtml from "sanitize-html";
+import type { IOptions } from "sanitize-html";
 
-const BASE_ALLOWED_TAGS = new Set([
-  ...sanitizeHtml.defaults.allowedTags,
+const BASE_ALLOWED_TAGS = new Set<string>([
+  ...(sanitizeHtml.defaults.allowedTags ?? []),
   "img",
   "section",
   "article",
@@ -21,8 +22,8 @@ const BASE_ALLOWED_TAGS = new Set([
 
 const allowedTags = Array.from(BASE_ALLOWED_TAGS);
 
-const allowedAttributes: sanitizeHtml.IOptions["allowedAttributes"] = {
-  ...sanitizeHtml.defaults.allowedAttributes,
+const allowedAttributes: IOptions["allowedAttributes"] = {
+  ...(sanitizeHtml.defaults.allowedAttributes ?? {}),
   "*": [
     "class",
     "style",

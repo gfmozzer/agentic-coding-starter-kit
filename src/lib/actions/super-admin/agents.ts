@@ -1,12 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getSessionContext } from "@/lib/auth/session";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { generateObject, NoObjectGeneratedError } from "ai";
 import { openai } from "@ai-sdk/openai";
-
-import { getSessionContext } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { agentAudit, agents } from "@/lib/db/schema/agents";
 
@@ -109,6 +108,15 @@ type AgentSnapshot = {
   defaultProvider: string;
   defaultModel: string;
 };
+
+
+async function requireSuperAdmin() {
+  const session = await getSessionContext();
+  if (!session || session.role !== "super-admin") {
+    throw new Error("Acesso negado.");
+  }
+  return session;
+}
 
 function normalizeInput(
   input: z.infer<typeof agentFormSchema>,
@@ -276,7 +284,7 @@ function formatPreview(data: unknown) {
     }
     const limit = 600;
     return serialized.length > limit ? `${serialized.slice(0, limit)}...` : serialized;
-  } catch (error) {
+  } catch {
     return "Dry-run concluido, mas a amostra nao pode ser serializada.";
   }
 }
@@ -337,7 +345,7 @@ export async function testAgentSchemaAction(
 
     const result = await generateObject({
       model: openai(modelName),
-      schema: schemaObject as unknown as JsonObject,
+      schema: schemaObject as unknown as any,
       mode: "json",
       prompt,
     });
@@ -361,3 +369,12 @@ ${preview}`,
     return { error: "Falha ao validar schema." };
   }
 }
+
+
+
+
+
+
+
+
+

@@ -161,6 +161,92 @@ export const workflowAudit = pgTable(
   })
 );
 
+export type TenantWorkflowStatus = "draft" | "ready";
+
+export const tenantWorkflows = pgTable(
+  "tenant_workflows",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    workflowTemplateId: uuid("workflow_template_id")
+      .notNull()
+      .references(() => workflowTemplates.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    description: text("description"),
+    version: text("version").default("v1").notNull(),
+    status: text("status")
+      .$type<TenantWorkflowStatus>()
+      .default("draft")
+      .notNull(),
+    llmTokenRefDefault: text("llm_token_ref_default"),
+    clonedBy: text("cloned_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    clonedAt: timestamp("cloned_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantNameIdx: uniqueIndex("tenant_workflows_tenant_name_idx").on(
+      table.tenantId,
+      table.name
+    ),
+    templateIdx: index("tenant_workflows_template_idx").on(
+      table.workflowTemplateId
+    ),
+    tenantIdx: index("tenant_workflows_tenant_idx").on(table.tenantId),
+    statusCheck: check(
+      "tenant_workflows_status_check",
+      sql`${table.status} in ('draft', 'ready')`
+    ),
+  })
+);
+
+export const tenantWorkflowSteps = pgTable(
+  "tenant_workflow_steps",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantWorkflowId: uuid("tenant_workflow_id")
+      .notNull()
+      .references(() => tenantWorkflows.id, { onDelete: "cascade" }),
+    templateStepId: text("template_step_id")
+      .notNull()
+      .references(() => workflowSteps.id, { onDelete: "cascade" }),
+    type: text("type")
+      .$type<WorkflowStepType>()
+      .notNull(),
+    position: integer("position").notNull(),
+    label: text("label"),
+    sourceStepId: text("source_step_id"),
+    systemPromptOverride: text("system_prompt_override"),
+    llmProviderOverride: text("llm_provider_override"),
+    llmTokenRefOverride: text("llm_token_ref_override"),
+    renderHtmlOverride: text("render_html_override"),
+    configOverride: jsonb("config_override")
+      .$type<Record<string, unknown>>()
+      .default(sql`'{}'::jsonb`)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantWorkflowIdx: index("tenant_workflow_steps_tenant_workflow_idx").on(
+      table.tenantWorkflowId
+    ),
+    templateIdx: index("tenant_workflow_steps_template_idx").on(
+      table.templateStepId
+    ),
+    tenantWorkflowTemplateUniqueIdx: uniqueIndex(
+      "tenant_workflow_steps_unique_idx"
+    ).on(table.tenantWorkflowId, table.templateStepId),
+  })
+);
+
+export type TenantWorkflow = typeof tenantWorkflows.$inferSelect;
+export type CreateTenantWorkflow = typeof tenantWorkflows.$inferInsert;
+export type TenantWorkflowStep = typeof tenantWorkflowSteps.$inferSelect;
+export type CreateTenantWorkflowStep = typeof tenantWorkflowSteps.$inferInsert;
 export const workflows = pgTable(
   "workflows",
   {
@@ -190,3 +276,6 @@ export const workflows = pgTable(
     ),
   })
 );
+
+
+

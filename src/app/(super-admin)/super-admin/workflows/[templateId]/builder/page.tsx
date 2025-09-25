@@ -11,8 +11,8 @@ interface BuilderPageParams {
   templateId: string;
 }
 
-export default async function WorkflowBuilderPage({ params }: { params: BuilderPageParams }) {
-  const templateId = params.templateId;
+export default async function WorkflowBuilderPage({ params }: { params: Promise<BuilderPageParams> }) {
+  const { templateId } = await params;
 
   const runtime = await buildRuntimeWorkflow(templateId).catch((error) => {
     console.error("Workflow builder load", error);

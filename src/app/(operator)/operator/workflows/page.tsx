@@ -1,31 +1,66 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { inArray } from "drizzle-orm";
+import { getSessionContext } from "@/lib/auth/session";
+import { db } from "@/lib/db";
+import { workflowTemplates } from "@/lib/db/schema/workflows";
+import {
+  listPublishedWorkflowTemplatesForTenant,
+  listTenantWorkflows,
+} from "@/lib/workflows/tenant";
+import { OperatorWorkflowsClient } from "./workflows-client";
 
-export default function OperatorWorkflowsPage() {
+export default async function OperatorWorkflowsPage() {
+  const session = await getSessionContext();
+  if (!session || session.role !== "operator" || !session.tenantId) {
+    return null;
+  }
+
+  const tenantId = session.tenantId;
+
+  const [workflows, publishedTemplates] = await Promise.all([
+    listTenantWorkflows(tenantId),
+    listPublishedWorkflowTemplatesForTenant(tenantId),
+  ]);
+
+  const templateIds = Array.from(new Set(workflows.map((workflow) => workflow.templateId)));
+
+  const templateRows = templateIds.length
+    ? await db
+        .select({
+          id: workflowTemplates.id,
+          name: workflowTemplates.name,
+          version: workflowTemplates.version,
+        })
+        .from(workflowTemplates)
+        .where(inArray(workflowTemplates.id, templateIds))
+    : [];
+
+  const templateMap = new Map(templateRows.map((row) => [row.id, row]));
+
+  const workflowItems = workflows.map((workflow) => {
+    const template = templateMap.get(workflow.templateId);
+    return {
+      id: workflow.id,
+      name: workflow.name,
+      status: workflow.status,
+      templateId: workflow.templateId,
+      templateName: template?.name ?? "Template removido",
+      templateVersion: template?.version ?? workflow.version,
+      updatedAt: workflow.updatedAt,
+      llmTokenRefDefault: workflow.llmTokenRefDefault ?? null,
+    };
+  });
+
+  const templateItems = publishedTemplates.map((template) => ({
+    templateId: template.templateId,
+    name: template.name,
+    description: template.description ?? null,
+    version: template.version,
+    isDefault: template.isDefault,
+    publishedAt: template.publishedAt.toISOString(),
+  }));
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Workflows Disponiveis</h2>
-          <p className="text-sm text-muted-foreground">
-            Escolha um workflow global ou uma copia ja personalizada para o tenant.
-          </p>
-        </div>
-        <Button size="sm">Clonar workflow</Button>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Proxima entrega</CardTitle>
-          <CardDescription>
-            Listar workflows com informacoes de ultima atualizacao e quem publicou.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          <p>
-            Mostre indicadores de token configurado e revisoes pendentes para cada workflow.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <OperatorWorkflowsClient workflows={workflowItems} templates={templateItems} />
   );
 }
+

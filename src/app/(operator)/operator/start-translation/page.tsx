@@ -1,31 +1,46 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { inArray } from "drizzle-orm";
 
-export default function StartTranslationPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold">Iniciar traducao</h2>
-        <p className="text-sm text-muted-foreground">
-          Carregue PDF ou imagens, configure token do workflow e dispare o job para o n8n.
-        </p>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Checklist antes do upload</CardTitle>
-          <CardDescription>
-            Validar se o workflow possui token configurado e destino definido.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm text-muted-foreground">
-          <ul className="list-disc list-inside space-y-1">
-            <li>Selecionar workflow.</li>
-            <li>Definir token LLM se ainda nao estiver presente.</li>
-            <li>Enviar arquivo ou URL para traducao.</li>
-          </ul>
-          <Button size="sm">Novo upload</Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+import { getSessionContext } from "@/lib/auth/session";
+import { db } from "@/lib/db";
+import { workflowTemplates } from "@/lib/db/schema/workflows";
+import { listTenantWorkflows } from "@/lib/workflows/tenant";
+import { StartTranslationClient } from "./start-translation-client";
+
+export default async function StartTranslationPage() {
+  const session = await getSessionContext();
+  if (!session || session.role !== "operator" || !session.tenantId) {
+    return null;
+  }
+
+  const tenantWorkflows = await listTenantWorkflows(session.tenantId);
+
+  const templateIds = Array.from(new Set(tenantWorkflows.map((workflow) => workflow.templateId)));
+
+  const templates = templateIds.length
+    ? await db
+        .select({
+          id: workflowTemplates.id,
+          name: workflowTemplates.name,
+          version: workflowTemplates.version,
+        })
+        .from(workflowTemplates)
+        .where(inArray(workflowTemplates.id, templateIds))
+    : [];
+
+  const templateMap = new Map(templates.map((template) => [template.id, template]));
+
+  const workflows = tenantWorkflows.map((workflow) => {
+    const template = templateMap.get(workflow.templateId);
+    return {
+      id: workflow.id,
+      name: workflow.name,
+      status: workflow.status,
+      llmTokenRefDefault: workflow.llmTokenRefDefault ?? null,
+      templateName: template?.name ?? "Template removido",
+      templateVersion: template?.version ?? workflow.version,
+      updatedAt: workflow.updatedAt,
+    };
+  });
+
+  return <StartTranslationClient workflows={workflows} />;
 }

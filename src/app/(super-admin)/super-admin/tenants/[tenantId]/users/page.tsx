@@ -19,13 +19,11 @@ import type {
 } from "./users-page-types";
 
 type TenantUsersPageProps = {
-  params: {
-    tenantId: string;
-  };
+  params: Promise<{ tenantId: string }>;
 };
 
 export default async function TenantUsersPage({ params }: TenantUsersPageProps) {
-  const { tenantId } = params;
+  const { tenantId } = await params;
 
   const tenantRecord = await db
     .select({
