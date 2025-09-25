@@ -1,5 +1,10 @@
 // @ts-nocheck
 import { expect, test } from "@playwright/test";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 const storageState = process.env.PLAYWRIGHT_STORAGE_STATE;
@@ -85,17 +90,16 @@ test.describe("Console do operador", () => {
     await page.getByRole("button", { name: "Salvar alteracoes" }).click();
     await expect(page.getByText("Configuracoes salvas com sucesso.")).toBeVisible({ timeout: 7000 });
 
-    const pdfUrl = `https://storage.example.com/tests/${Date.now()}.pdf`;
+    const pdfFixture = path.resolve(__dirname, "../fixtures/sample.pdf");
     await page.goto(`${baseURL}/operator/start-translation`);
     await expect(page.getByRole("heading", { name: "Iniciar traducao" })).toBeVisible();
 
-    const sourceInput = page.locator("#source-pdf");
-    await sourceInput.fill(pdfUrl);
+    const fileInput = page.locator("#workflow-file");
+    await fileInput.setInputFiles(pdfFixture);
     await page.getByRole("button", { name: "Criar job" }).click();
 
     await expect(page.getByText(/Job .* criado/)).toBeVisible({ timeout: 7000 });
     const payloadPreview = page.locator("pre").first();
-    await expect(payloadPreview).toContainText("defaultToken");
-    await expect(payloadPreview).toContainText(pdfUrl);
+    await expect(payloadPreview).toContainText("pageImages");
   });
 });

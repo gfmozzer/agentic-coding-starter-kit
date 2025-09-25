@@ -17,6 +17,7 @@ export type JobStatus =
   | "queued"
   | "processing"
   | "review"
+  | "review:gate"
   | "translating"
   | "done"
   | "failed";
@@ -36,6 +37,10 @@ export const jobs = pgTable(
       .default("queued")
       .notNull(),
     sourcePdfUrl: text("source_pdf_url").notNull(),
+    pageImages: jsonb("page_images_json")
+      .$type<string[]>()
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
     result: jsonb("result")
       .$type<Record<string, unknown>>()
       .default(sql`'{}'::jsonb`)
@@ -156,6 +161,29 @@ export const reviewSessions = pgTable(
   })
 );
 
+export const jobEvents = pgTable(
+  "job_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    jobId: uuid("job_id")
+      .notNull()
+      .references(() => jobs.id, { onDelete: "cascade" }),
+    eventType: text("event_type").notNull(),
+    payload: jsonb("payload")
+      .$type<Record<string, unknown>>()
+      .default(sql`'{}'::jsonb`)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("job_events_tenant_idx").on(table.tenantId),
+    jobIdx: index("job_events_job_idx").on(table.jobId),
+  })
+);
+
 export const keyAudit = pgTable(
   "key_audit",
   {
@@ -182,3 +210,5 @@ export const keyAudit = pgTable(
     sessionIdx: index("key_audit_session_idx").on(table.reviewSessionId),
   })
 );
+export type JobEvent = typeof jobEvents.$inferSelect;
+export type CreateJobEvent = typeof jobEvents.$inferInsert;
