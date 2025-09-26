@@ -8,7 +8,8 @@ import { z } from "zod";
 
 import { getSessionContext } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { jobEvents, jobFiles, jobs } from "@/lib/db/schema/jobs";
+import { jobFiles, jobs } from "@/lib/db/schema/jobs";
+import { jobEvents } from "@/lib/db/schema/job-events";
 import { workflows } from "@/lib/db/schema/workflows";
 import { StorageClient } from "@/lib/storage/client";
 import { buildJobPaths } from "@/lib/storage/jobs-paths";

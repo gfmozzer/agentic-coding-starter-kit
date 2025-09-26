@@ -9,11 +9,12 @@ alwaysApply: false
 
 id: "MVP-009"
 title: "Orquestrar pipeline com n8n"
-status: "planned"
+status: "done"
 priority: "P0"
 labels: ["workflow","integration","api"]
 dependencies: ["MVP-008"]
 created: "2025-09-22"
+completed: "2025-09-26"
 
 # 1) High-Level Objective
 
