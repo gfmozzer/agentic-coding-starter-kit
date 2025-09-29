@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Provide jobs dashboard with metrics and final download."
 globs:
   - src/app/(operator)/jobs/**
@@ -9,11 +9,12 @@ alwaysApply: false
 
 id: "MVP-011"
 title: "Dashboard de jobs e metricas por agente"
-status: "planned"
+status: "done"
 priority: "P1"
 labels: ["metrics","jobs","ui"]
 dependencies: ["MVP-010"]
 created: "2025-09-22"
+completed: "2025-09-30"
 
 # 1) High-Level Objective
 
@@ -87,3 +88,4 @@ export interface AgentJobMetric {
 # 10) Notes / Links
 
 - Avaliar grafico simples usando `@tanstack/react-charts` para representar metricas.
+

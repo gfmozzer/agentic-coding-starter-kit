@@ -79,7 +79,7 @@ const operatorNav: NavItem[] = [
   },
   {
     label: "Jobs",
-    href: "/operator/jobs",
+    href: "/jobs",
     icon: FileText,
   },
 ];
@@ -130,3 +130,4 @@ export function AppSidebar({ role }: { role: AppRole }) {
     </aside>
   );
 }
+

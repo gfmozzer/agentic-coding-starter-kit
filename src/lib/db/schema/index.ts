@@ -7,3 +7,4 @@ export * from "./jobs";
 export * from "./job-events";
 export * from "./review-gates";
 export * from "./key-audit";
+export * from "./job-metrics";
