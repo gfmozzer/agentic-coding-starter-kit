@@ -17,6 +17,8 @@ async function createBaseRow() {
     outputSchemaJson: { type: "object", properties: { name: { type: "string" } } },
     defaultProvider: "openai",
     defaultModel: "gpt-4.1-mini",
+    webhookUrl: "https://example.com/agents/structured",
+    webhookAuthHeader: "Bearer token-123",
     createdAt: new Date("2025-09-23T10:00:00.000Z"),
     updatedAt: new Date("2025-09-24T10:00:00.000Z"),
   };
@@ -33,6 +35,8 @@ test("mapAgentRowToDefinition retorna agente normalizado", async () => {
   assert.equal(definition.systemPrompt, baseRow.systemPrompt);
   assert.equal(definition.defaultProvider, baseRow.defaultProvider);
   assert.equal(definition.defaultModel, baseRow.defaultModel);
+  assert.equal(definition.webhookUrl, baseRow.webhookUrl);
+  assert.equal(definition.webhookAuthHeader, baseRow.webhookAuthHeader);
   assert.deepEqual(definition.outputSchema, baseRow.outputSchemaJson);
 });
 

@@ -4,7 +4,8 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { jobEvents } from "@/lib/db/schema/job-events";
-import { jobs, reviewSessions } from "@/lib/db/schema/jobs";
+import { jobs } from "@/lib/db/schema/jobs";
+import { reviewGates } from "@/lib/db/schema/review-gates";
 
 const baseSchema = z.object({
   tenant_id: z.string().uuid("tenant_id invalido."),
@@ -136,42 +137,39 @@ async function handleReview(job: JobRow, payload: ReviewPayload) {
   const nextResult = mergeReviewState(resultRecord, payload, now.toISOString());
 
   await db.transaction(async (tx) => {
-    const existingSession = await tx
-      .select({ id: reviewSessions.id })
-      .from(reviewSessions)
-      .where(and(eq(reviewSessions.jobId, job.id), eq(reviewSessions.gateId, payload.gate_id)))
+    const existingGate = await tx
+      .select({ id: reviewGates.id })
+      .from(reviewGates)
+      .where(and(eq(reviewGates.jobId, job.id), eq(reviewGates.gateId, payload.gate_id)))
       .limit(1)
       .then((rows) => rows[0]);
 
-    const sessionPayload = {
+    const gateUpdate = {
+      inputKind: payload.input_kind,
+      refId: payload.ref_id,
+      status: "pending" as const,
       keys: payload.keys,
-      key_sources: payload.key_sources ?? {},
-      keys_translated: payload.keys_translated ?? undefined,
+      keySources: payload.key_sources ?? {},
+      keysTranslated: payload.keys_translated ?? null,
+      keysReviewed: payload.keys_reviewed ?? null,
       pages: payload.pages,
-      context: payload.context ?? undefined,
-      keys_reviewed: payload.keys_reviewed ?? undefined,
-    } as Record<string, unknown>;
+      context: payload.context ?? null,
+      reviewerId: null,
+      updatedAt: now,
+      closedAt: null,
+    } satisfies Partial<(typeof reviewGates)["$inferInsert"]>;
 
-    if (existingSession) {
+    if (existingGate) {
       await tx
-        .update(reviewSessions)
-        .set({
-          inputKind: payload.input_kind,
-          refId: payload.ref_id,
-          keysPayload: sessionPayload,
-          status: "pending",
-          closedAt: null,
-        })
-        .where(eq(reviewSessions.id, existingSession.id));
+        .update(reviewGates)
+        .set(gateUpdate)
+        .where(eq(reviewGates.id, existingGate.id));
     } else {
-      await tx.insert(reviewSessions).values({
+      await tx.insert(reviewGates).values({
         tenantId: job.tenantId,
         jobId: job.id,
         gateId: payload.gate_id,
-        inputKind: payload.input_kind,
-        refId: payload.ref_id,
-        keysPayload: sessionPayload,
-        status: "pending",
+        ...gateUpdate,
       });
     }
 

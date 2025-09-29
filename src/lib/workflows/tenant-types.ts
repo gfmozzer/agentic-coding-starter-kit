@@ -48,6 +48,8 @@ export interface TenantWorkflowResolvedStep {
     kind: string;
     defaultProvider?: string | null;
     systemPrompt?: string | null;
+    webhookUrl?: string | null;
+    webhookAuthHeader?: string | null;
   };
   renderTemplate?: {
     id: string;

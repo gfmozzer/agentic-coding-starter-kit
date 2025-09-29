@@ -152,6 +152,7 @@ export async function POST(_request: NextRequest, context: { params: { jobId: st
       token_ref: llmToken,
     },
     metadata,
+    workflow_definition: definition,
   };
 
   try {

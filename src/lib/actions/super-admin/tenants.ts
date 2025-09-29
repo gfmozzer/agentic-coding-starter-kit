@@ -21,14 +21,7 @@ import type {
   UpdateTenantMemberRoleInput,
   UpsertTenantInput,
 } from "./types";
-
-export interface ActionState {
-  success?: string;
-  error?: string;
-  fieldErrors?: Record<string, string | undefined>;
-}
-
-export const initialActionState: ActionState = {};
+import type { ActionState } from "./agent-action-state";
 
 const upsertTenantSchema = z.object({
   id: z.string().uuid().optional(),

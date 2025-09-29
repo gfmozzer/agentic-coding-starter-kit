@@ -11,7 +11,6 @@ import {
 import { agents, tenantAgents } from "./agents";
 import { tenants } from "./tenants";
 import { workflows } from "./workflows";
-import { user } from "./auth";
 
 export type JobStatus =
   | "queued"
@@ -126,64 +125,3 @@ export const jobFiles = pgTable(
   })
 );
 
-export type ReviewSessionStatus = "pending" | "in_review" | "approved" | "rejected";
-
-export const reviewSessions = pgTable(
-  "review_sessions",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
-      .notNull()
-      .references(() => tenants.id, { onDelete: "cascade" }),
-    jobId: uuid("job_id")
-      .notNull()
-      .references(() => jobs.id, { onDelete: "cascade" }),
-    gateId: text("gate_id").notNull(),
-    inputKind: text("input_kind").notNull(),
-    refId: text("ref_id").notNull(),
-    keysPayload: jsonb("keys_payload")
-      .$type<Record<string, unknown>>()
-      .default(sql`'{}'::jsonb`)
-      .notNull(),
-    status: text("status")
-      .$type<ReviewSessionStatus>()
-      .default("pending")
-      .notNull(),
-    openedAt: timestamp("opened_at").defaultNow().notNull(),
-    closedAt: timestamp("closed_at"),
-    reviewerId: text("reviewer_id").references(() => user.id, {
-      onDelete: "set null",
-    }),
-  },
-  (table) => ({
-    tenantIdx: index("review_sessions_tenant_idx").on(table.tenantId),
-    jobIdx: index("review_sessions_job_idx").on(table.jobId),
-  })
-);
-
-export const keyAudit = pgTable(
-  "key_audit",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
-      .notNull()
-      .references(() => tenants.id, { onDelete: "cascade" }),
-    reviewSessionId: uuid("review_session_id")
-      .notNull()
-      .references(() => reviewSessions.id, { onDelete: "cascade" }),
-    keyName: text("key_name").notNull(),
-    oldValue: text("old_value"),
-    newValue: text("new_value"),
-    sourceAgentId: uuid("source_agent_id").references(() => agents.id, {
-      onDelete: "set null",
-    }),
-    editedBy: text("edited_by").references(() => user.id, {
-      onDelete: "set null",
-    }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  (table) => ({
-    tenantIdx: index("key_audit_tenant_idx").on(table.tenantId),
-    sessionIdx: index("key_audit_session_idx").on(table.reviewSessionId),
-  })
-);

@@ -173,6 +173,8 @@ export async function getTenantWorkflowWithTemplate(
           kind: agents.kind,
           systemPrompt: agents.systemPrompt,
           defaultProvider: agents.defaultProvider,
+          webhookUrl: agents.webhookUrl,
+          webhookAuthHeader: agents.webhookAuthHeader,
         })
         .from(agents)
         .where(inArray(agents.id, uniqueAgentIds))
@@ -243,6 +245,8 @@ export async function getTenantWorkflowWithTemplate(
             kind: agent.kind,
             defaultProvider: agent.defaultProvider,
             systemPrompt: agent.systemPrompt,
+            webhookUrl: agent.webhookUrl ?? null,
+            webhookAuthHeader: agent.webhookAuthHeader ?? null,
           }
         : undefined,
       renderTemplate: renderTemplate

@@ -1,43 +1,45 @@
-# OrquestraÁ„o n8n para Jobs
+Ôªø# Orquestra√ß√£o n8n para Jobs
 
-## Vis„o Geral
-- `src/lib/orchestration/n8n-client.ts` centraliza os disparos HTTP para a inst‚ncia do n8n usando `N8N_WEBHOOK_URL`, com fallback para `N8N_WEBHOOK_START_URL`/`N8N_WEBHOOK_BASE_URL` e cabeÁalho opcional `N8N_WEBHOOK_AUTH_HEADER`.
-- `POST /api/operator/jobs/[jobId]/start` valida sess„o do operador, garante presenÁa de `llmTokenRefDefault`, monta o payload esperado pelo n8n e atualiza o job para `processing`, registrando o evento `job_started`.
-- `POST /api/webhooks/n8n` processa callbacks do n8n (review, done, failed), aplica transiÁıes de status, sincroniza sessıes de review e armazena o payload bruto em `job_events` para auditoria.
+## Vis√£o Geral
+- `src/lib/orchestration/n8n-client.ts` centraliza os disparos HTTP para a inst√¢ncia do n8n usando `N8N_WEBHOOK_URL`, com fallback para `N8N_WEBHOOK_START_URL`/`N8N_WEBHOOK_BASE_URL` e cabe√ßalho opcional `N8N_WEBHOOK_AUTH_HEADER`.
+- `POST /api/operator/jobs/[jobId]/start` valida sess√£o do operador, garante presen√ßa de `llmTokenRefDefault`, monta o payload esperado pelo n8n e atualiza o job para `processing`, registrando o evento `job_started`.
+- `POST /api/webhooks/n8n` processa callbacks do n8n (review, done, failed), aplica transi√ß√µes de status, sincroniza os registros em `review_gates` e armazena o payload bruto em `job_events` para auditoria.
 
 ## Fluxo de Disparo
 1. Operador chama `/start` para um job `queued`.
-2. A rota monta `N8NStartPayload` contendo `tenant_id`, `job_id`, `workflow_id`, URL do PDF e dados de LLM (provider + token).
-3. `n8n-client.triggerWorkflow` envia o POST e, em caso de sucesso, o job passa para `processing`; em falha, o erro È persistido e um evento `job_start_failed` È gravado.
+2. A rota monta `N8NStartPayload` contendo `tenant_id`, `job_id`, `workflow_id`, URL do PDF, dados de LLM (provider + token) **e o `workflow_definition` completo** ‚Äî cada step inclui o agente associado com `webhookUrl`/`webhookAuthHeader` configurados no cat√°logo.
+3. `n8n-client.triggerWorkflow` envia o POST e, em caso de sucesso, o job passa para `processing`; em falha, o erro √© persistido e um evento `job_start_failed` √© gravado.
 
 ## Webhooks do n8n
 - **Review Gate** (`gate_id` presente):
-  - Atualiza/insere sess„o em `review_sessions`, define status do job como `review:<gateId>` e persiste snapshot em `jobs.result.reviewGates`.
+  - Atualiza/insere registro em `review_gates`, define status do job como `review:<gateId>` e persiste snapshot em `jobs.result.reviewGates`.
   - Evento registrado: `review_gate_opened` (payload bruto).
-- **Conclus„o** (`status: "done"`):
-  - Job muda para `done`, `result.finalPdfUrl` È preenchido e `job_completed` È registrado.
+- **Conclus√£o** (`status: "done"`):
+  - Job muda para `done`, `result.finalPdfUrl` √© preenchido e `job_completed` √© registrado.
 - **Falha** (`status: "failed"`):
   - Job passa para `failed`, `error` recebe o motivo e `job_failed` guarda o payload.
 - Mismatch de `tenant_id` retorna 409 e gera `webhook_tenant_mismatch` para rastreamento.
-- TODO explÌcito no handler reforÁa necessidade de validar assinatura HMAC em etapas futuras.
+- TODO expl√≠cito no handler refor√ßa necessidade de validar assinatura HMAC em etapas futuras.
 
 ## Dados Persistidos
-- Nova tabela dedicada `job_events` (agora em `src/lib/db/schema/job-events.ts`) registra cada interaÁ„o relevante com payload completo.
-- Campos JSON de `jobs.result` guardam metadados de review (`reviewGates`), PDF final e informaÁıes de erro/execuÁ„o.
+- `review_gates` persiste o √∫ltimo payload enviado pelo n8n (keys, sources, p√°ginas, contexto) com RLS por tenant.
+- `key_audit` guarda cada edi√ß√£o feita pelo operador (`old_value`, `new_value`, `source_agent_id`, `edited_by`).
+- `job_events` registra cada intera√ß√£o relevante com payload completo.
+- Campos JSON de `jobs.result` guardam metadados de review (`reviewGates`), PDF final e informa√ß√µes de erro/execu√ß√£o.
 
-## Vari·veis de Ambiente
-- `N8N_WEBHOOK_URL` (ou `N8N_WEBHOOK_START_URL`/`N8N_WEBHOOK_BASE_URL`) ó endpoint de disparo.
-- `N8N_WEBHOOK_REVIEW_URL` opcional para aprovaÁıes futuras; atualmente padr„o `/review`.
-- `N8N_WEBHOOK_AUTH_HEADER` ó valor enviado em `Authorization` para webhooks protegidos.
+## Vari√°veis de Ambiente
+- `N8N_WEBHOOK_URL` (ou `N8N_WEBHOOK_START_URL`/`N8N_WEBHOOK_BASE_URL`) ‚Äì endpoint de disparo.
+- `N8N_WEBHOOK_REVIEW_URL` opcional para aprova√ß√µes futuras; atualmente padr√£o `/review`.
+- `N8N_WEBHOOK_AUTH_HEADER` ‚Äì valor enviado em `Authorization` para webhooks protegidos.
 
 ## Testes
-- `tests/integration/n8n-webhook.test.ts` monta fixtures reais no banco, intercepta chamadas HTTP com `undici.MockAgent` e verifica:
-  - TransiÁ„o `queued -> processing` apÛs disparo com registro de evento.
-  - PersistÍncia da sess„o de review e mudanÁa para `review:<gateId>`.
-  - Conclus„o do job com `finalPdfUrl` e evento `job_completed`.
+- `tests/integration/n8n-webhook.test.ts` monta fixtures reais no banco, intercepta chamadas HTTP com `mock.method` e verifica:
+  - Transi√ß√£o `queued -> processing` ap√≥s disparo com registro de evento.
+  - Persist√™ncia do registro em `review_gates` e mudan√ßa para `review:<gateId>`.
+  - Conclus√£o do job com `finalPdfUrl` e evento `job_completed`.
 
-## Decisıes de Projeto
-- Eventos do n8n s„o gravados sem sanitizaÁ„o para garantir rastreabilidade completa; polÌticas de retenÁ„o devem ser avaliadas em produÁ„o.
-- Payloads de review s„o guardados tanto em `review_sessions` quanto no snapshot do job para facilitar telas futuras sem m˙ltiplos joins.
-- Em caso de falha no disparo, job permanece `queued`, permitindo retry manual sem recriaÁ„o.
-- Estrutura de cliente isolada (`n8n-client`) facilita futura troca por filas/background jobs.
+## Decis√µes de Projeto
+- Eventos do n8n s√£o gravados sem sanitiza√ß√£o para garantir rastreabilidade completa; pol√≠ticas de reten√ß√£o devem ser avaliadas em produ√ß√£o.
+- Payloads de review s√£o guardados tanto em `review_gates` quanto no snapshot do job para facilitar telas futuras.
+- Em caso de falha no disparo, job permanece `queued`, permitindo retry manual sem recria√ß√£o.
+- O payload de in√≠cio inclui o `workflow_definition` serializado, permitindo que o n8n resolva o webhook espec√≠fico de cada agente sem buscar dados adicionais.

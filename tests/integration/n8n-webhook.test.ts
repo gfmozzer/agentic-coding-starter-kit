@@ -42,6 +42,10 @@ test("integra n8n dispara job e processa webhooks", async (t) => {
     const payload = JSON.parse(bodyText!);
     assert.equal(payload.job_id, jobId);
     assert.equal(payload.tenant_id, tenantId);
+    assert(payload.workflow_definition, "payload deve incluir workflow_definition");
+    if (payload.workflow_definition) {
+      assert.deepEqual(payload.workflow_definition.steps, definition.steps);
+    }
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,

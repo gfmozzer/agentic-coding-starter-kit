@@ -8,6 +8,7 @@ export interface N8NStartPayload {
     token_ref: string;
   };
   metadata?: Record<string, unknown>;
+  workflow_definition?: Record<string, unknown>;
 }
 
 export interface N8NReviewPayload {

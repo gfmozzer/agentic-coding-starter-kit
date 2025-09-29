@@ -7,12 +7,12 @@ import { useFormStatus } from "react-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  initialActionState,
   assignTenantRoleAction,
   cancelTenantInviteAction,
   removeTenantMemberAction,
   updateTenantMemberRoleAction,
 } from "@/lib/actions/super-admin/tenants";
+import { initialActionState } from "@/lib/actions/super-admin/agent-action-state";
 
 import type { TenantInviteStatus } from "@/lib/db/schema/tenants";
 import type {

@@ -27,15 +27,17 @@ export const agents = pgTable(
       .$type<Record<string, unknown>>()
       .default(sql`'{}'::jsonb`)
       .notNull(),
-    defaultProvider: text("default_provider")
-      .default("openai")
-      .notNull(),
-    defaultModel: text("default_model")
-      .default("gpt-4.1-mini")
-      .notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
+  defaultProvider: text("default_provider")
+    .default("openai")
+    .notNull(),
+  defaultModel: text("default_model")
+    .default("gpt-4.1-mini")
+    .notNull(),
+  webhookUrl: text("webhook_url"),
+  webhookAuthHeader: text("webhook_auth_header"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+},
   (table) => ({
     kindNameIdx: uniqueIndex("agents_kind_name_idx").on(table.kind, table.name),
   })

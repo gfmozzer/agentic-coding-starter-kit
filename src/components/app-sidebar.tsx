@@ -74,7 +74,7 @@ const operatorNav: NavItem[] = [
   },
   {
     label: "Revisoes Pendentes",
-    href: "/operator/reviews",
+    href: "/reviews",
     icon: History,
   },
   {

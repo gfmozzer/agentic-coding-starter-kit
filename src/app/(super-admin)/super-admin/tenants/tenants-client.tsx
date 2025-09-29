@@ -16,10 +16,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import {
-  initialActionState,
-  upsertTenantAction,
-} from "@/lib/actions/super-admin/tenants";
+import { upsertTenantAction } from "@/lib/actions/super-admin/tenants";
+import { initialActionState } from "@/lib/actions/super-admin/agent-action-state";
 
 import type { TenantSummary } from "./page";
 

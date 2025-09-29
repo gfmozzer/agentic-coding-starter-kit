@@ -32,6 +32,8 @@ interface AgentDraft {
   outputSchemaJson: string;
   defaultProvider: string;
   defaultModel: string;
+  webhookUrl: string;
+  webhookAuthHeader: string;
 }
 
 const agentKinds: { label: string; value: AgentKind }[] = [
@@ -50,6 +52,8 @@ const emptyDraft: AgentDraft = {
   outputSchemaJson: "{}",
   defaultProvider: "openai",
   defaultModel: "gpt-4.1-mini",
+  webhookUrl: "",
+  webhookAuthHeader: "",
 };
 
 export function AgentsClient({ agents }: AgentsClientProps) {
@@ -118,6 +122,8 @@ export function AgentsClient({ agents }: AgentsClientProps) {
       outputSchemaJson: JSON.stringify(agent.outputSchema, null, 2),
       defaultProvider: agent.defaultProvider,
       defaultModel: agent.defaultModel,
+      webhookUrl: agent.webhookUrl ?? "",
+      webhookAuthHeader: agent.webhookAuthHeader ?? "",
     });
     setEditingId(agent.id);
     setDialogOpen(true);
@@ -192,6 +198,9 @@ export function AgentsClient({ agents }: AgentsClientProps) {
                 Provider / Modelo
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Webhook
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Atualizado em
               </th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -202,7 +211,7 @@ export function AgentsClient({ agents }: AgentsClientProps) {
           <tbody className="divide-y divide-border">
             {filteredAgents.length === 0 ? (
               <tr>
-                <td className="px-4 py-6 text-sm text-muted-foreground" colSpan={5}>
+                <td className="px-4 py-6 text-sm text-muted-foreground" colSpan={6}>
                   Nenhum agente cadastrado para este filtro.
                 </td>
               </tr>
@@ -227,6 +236,18 @@ export function AgentsClient({ agents }: AgentsClientProps) {
                       <div className="flex flex-col">
                         <span>{agent.defaultProvider}</span>
                         <span className="text-xs text-muted-foreground">{agent.defaultModel}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <div className="flex flex-col">
+                        <span className="max-w-[240px] truncate text-sm text-muted-foreground">
+                          {agent.webhookUrl ?? "—"}
+                        </span>
+                        {agent.webhookAuthHeader ? (
+                          <span className="text-xs text-muted-foreground">
+                            Header: {agent.webhookAuthHeader}
+                          </span>
+                        ) : null}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">{updatedAt}</td>
@@ -356,6 +377,43 @@ export function AgentsClient({ agents }: AgentsClientProps) {
                   <p className="text-xs text-destructive">{message}</p>
                 ) : null;
               })()}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-foreground" htmlFor="agent-webhook">
+                Webhook do agente (n8n)
+              </label>
+              <input
+                id="agent-webhook"
+                name="webhookUrl"
+                data-testid="webhook-url"
+                value={draft.webhookUrl}
+                onChange={(event) => handleDraftChange("webhookUrl", event.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="https://n8n.example.com/webhook/ocr"
+                required
+              />
+              {formState.fieldErrors?.webhookUrl ? (
+                <p className="text-xs text-destructive">{formState.fieldErrors.webhookUrl}</p>
+              ) : null}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-foreground" htmlFor="agent-webhook-header">
+                Header de autenticação (opcional)
+              </label>
+              <input
+                id="agent-webhook-header"
+                name="webhookAuthHeader"
+                data-testid="webhook-auth-header"
+                value={draft.webhookAuthHeader}
+                onChange={(event) => handleDraftChange("webhookAuthHeader", event.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="Authorization: Bearer ..."
+              />
+              {formState.fieldErrors?.webhookAuthHeader ? (
+                <p className="text-xs text-destructive">{formState.fieldErrors.webhookAuthHeader}</p>
+              ) : null}
             </div>
 
             <div className="space-y-1">

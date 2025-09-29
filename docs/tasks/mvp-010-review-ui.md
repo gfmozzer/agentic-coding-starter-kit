@@ -3,17 +3,19 @@ description: "Build review UI for gates with audit trail."
 globs:
   - src/app/(operator)/reviews/**
   - src/lib/actions/review/**
-  - src/lib/db/schema/reviews.ts
+  - src/lib/db/schema/review-gates.ts
+  - src/lib/db/schema/key-audit.ts
 alwaysApply: false
 ---
 
 id: "MVP-010"
 title: "Operador revisa gates com auditoria"
-status: "planned"
+status: "done"
 priority: "P0"
 labels: ["ui","review","audit"]
 dependencies: ["MVP-009"]
 created: "2025-09-22"
+completed: "2025-09-26"
 
 # 1) High-Level Objective
 

@@ -13,6 +13,8 @@ export interface AgentDefinition {
   outputSchema: JsonSchema;
   defaultProvider: string;
   defaultModel: string;
+  webhookUrl: string | null;
+  webhookAuthHeader?: string | null;
   updatedAt: Date;
   createdAt: Date;
 }

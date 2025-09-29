@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/auth/session";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { generateObject, NoObjectGeneratedError } from "ai";
+import { generateObject, NoObjectGeneratedError, type Schema } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { db } from "@/lib/db";
 import { agentAudit, agents } from "@/lib/db/schema/agents";
@@ -40,6 +40,8 @@ const agentFormSchema = z.object({
     .string()
     .trim()
     .min(1, "Informe o modelo padrao."),
+  webhookUrl: z.string().url("Informe uma URL de webhook valida."),
+  webhookAuthHeader: z.string().min(1).optional(),
 });
 
 const testSchemaForm = z.object({
@@ -107,6 +109,8 @@ type AgentSnapshot = {
   outputSchemaJson: JsonObject;
   defaultProvider: string;
   defaultModel: string;
+  webhookUrl: string;
+  webhookAuthHeader: string | null;
 };
 
 
@@ -130,6 +134,8 @@ function normalizeInput(
     outputSchemaJson: schema,
     defaultProvider: input.defaultProvider,
     defaultModel: input.defaultModel,
+    webhookUrl: input.webhookUrl,
+    webhookAuthHeader: input.webhookAuthHeader ?? null,
   };
 }
 
@@ -142,6 +148,8 @@ function snapshotFromRow(row: AgentRow): AgentSnapshot {
     outputSchemaJson: row.outputSchemaJson as JsonObject,
     defaultProvider: row.defaultProvider,
     defaultModel: row.defaultModel,
+    webhookUrl: row.webhookUrl ?? "",
+    webhookAuthHeader: row.webhookAuthHeader ?? null,
   };
 }
 
@@ -172,6 +180,11 @@ export async function upsertAgentAction(
       outputSchemaJson: formData.get("outputSchemaJson")?.toString() ?? "",
       defaultProvider: formData.get("defaultProvider")?.toString() ?? "",
       defaultModel: formData.get("defaultModel")?.toString() ?? "",
+      webhookUrl: formData.get("webhookUrl")?.toString().trim() ?? "",
+      webhookAuthHeader: (() => {
+        const raw = formData.get("webhookAuthHeader")?.toString().trim();
+        return raw && raw.length > 0 ? raw : undefined;
+      })(),
     });
 
     if (!parsed.success) {
@@ -345,7 +358,7 @@ export async function testAgentSchemaAction(
 
     const result = await generateObject({
       model: openai(modelName),
-      schema: schemaObject as unknown as any,
+      schema: schemaObject as Schema<JsonObject>,
       mode: "json",
       prompt,
     });
@@ -369,6 +382,7 @@ ${preview}`,
     return { error: "Falha ao validar schema." };
   }
 }
+
 
 
 

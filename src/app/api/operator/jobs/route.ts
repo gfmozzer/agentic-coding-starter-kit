@@ -80,13 +80,22 @@ function buildJobDefinition(
     } as Record<string, unknown>;
 
     if (step.type === "agent" || step.type === "translator") {
-      base.agent = step.agent
-        ? {
-            id: step.agent.id,
-            name: step.agent.name,
-            kind: step.agent.kind,
-          }
-        : null;
+      if (!step.agent) {
+        throw new Error(`Passo ${step.templateStepId} sem agente associado.`);
+      }
+
+      const webhookUrl = step.agent.webhookUrl ?? null;
+      if (!webhookUrl) {
+        throw new Error(`Agente ${step.agent.id} sem webhook configurado.`);
+      }
+
+      base.agent = {
+        id: step.agent.id,
+        name: step.agent.name,
+        kind: step.agent.kind,
+        webhookUrl,
+        webhookAuthHeader: step.agent.webhookAuthHeader ?? null,
+      };
       base.llm = {
         systemPrompt: systemPrompt ?? null,
         provider: provider ?? null,
