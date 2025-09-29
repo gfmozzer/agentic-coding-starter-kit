@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Document MVP features and prepare QA checklist."
 globs:
   - docs/features/**
@@ -9,11 +9,11 @@ alwaysApply: false
 
 id: "MVP-012"
 title: "Documentar MVP e checklist de QA"
-status: "planned"
+status: "done"
 priority: "P1"
 labels: ["docs","qa"]
 dependencies: ["MVP-001","MVP-011"]
-created: "2025-09-22"
+created: "2025-09-22"`ncompleted: "2025-09-30"
 
 # 1) High-Level Objective
 
@@ -65,7 +65,7 @@ N/A.
 
 # 8) Acceptance Criteria
 
-- Diretório `/docs/features/` contem arquivos mencionados com conteudo completo.
+- Diret�rio `/docs/features/` contem arquivos mencionados com conteudo completo.
 - README atualizado descreve aplicacao atual e passos de setup.
 - Checklist QA cobre criterios de aceite do starter-prompt.
 
@@ -76,3 +76,4 @@ Revisao manual executando checklist e marcando status; nenhum teste automatizado
 # 10) Notes / Links
 
 - Incluir prints ou GIFs se viavel para facilitar onboarding futuro.
+

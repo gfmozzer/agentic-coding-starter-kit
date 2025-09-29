@@ -6,7 +6,7 @@ export async function withTenantContext<T>(
   callback: (tx: typeof db) => Promise<T>
 ): Promise<T> {
   return db.transaction(async (tx) => {
-    await tx.execute(sql`set local app.tenant_id = ${tenantId}::uuid`);
+    await tx.execute(sql`select set_config('app.tenant_id', ${tenantId}, true)`);
     return callback(tx as unknown as typeof db);
   });
 }

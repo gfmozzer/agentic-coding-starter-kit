@@ -1,234 +1,93 @@
-# Agentic Coding Boilerplate
+# Translator Pro – MVP
 
-A complete agentic coding boilerplate with authentication, PostgreSQL database, AI chat functionality, and modern UI components - perfect for building AI-powered applications and autonomous agents.
+Aplicação multi-tenant para orquestrar traduções de documentos com agentes automáticos, review humano e auditoria completa. Este repositório implementa o fluxo descrito no starter-prompt: super-admin configura workflows, operadores clonam fluxos, disparam jobs, revisam gates e liberam o PDF final renderizado.
 
-## ğŸš€ Features
+## Visão Geral
+- **Papéis**: super-admin (administra tenants, agentes e workflows globais) e operador (clona workflows, inicia jobs, executa reviews, acompanha métricas).
+- **Orquestração**: integração com n8n via webhooks (`/api/webhooks/n8n` para entrada, `sendReviewApproval` para aprovação).
+- **Armazenamento**: S3/MinIO com prefixo `s3://docs/{tenant_id}/jobs/{job_id}/...`.
+- **Segurança**: Better Auth + RLS por `tenant_id` nas tabelas principais.
 
-- **ğŸ” Authentication**: Better Auth with Google OAuth integration
-- **ğŸ—ƒï¸ Database**: Drizzle ORM with PostgreSQL
-- **ğŸ¤– AI Integration**: Vercel AI SDK with OpenAI support
-- **ğŸ¨ UI Components**: shadcn/ui with Tailwind CSS
-- **âš¡ Modern Stack**: Next.js 15, React 19, TypeScript
-- **ğŸ“± Responsive**: Mobile-first design approach
+## Stack
+- Next.js 15 (App Router) + React 19
+- TypeScript, ESLint, Tailwind, shadcn/ui
+- Drizzle ORM + PostgreSQL
+- Better Auth (Google OAuth)
+- Vercel AI SDK (modelos via `OPENAI_MODEL`)
 
-## ğŸ¥ Video Tutorial
-
-Watch the complete walkthrough of this agentic coding template:
-
-[![Agentic Coding Boilerplate Tutorial](https://img.youtube.com/vi/T0zFZsr_d0Q/maxresdefault.jpg)](https://youtu.be/T0zFZsr_d0Q)
-
-<a href="https://youtu.be/T0zFZsr_d0Q" target="_blank" rel="noopener noreferrer">ğŸ”— Watch on YouTube</a>
-
-## â˜• Support This Project
-
-If this boilerplate helped you build something awesome, consider buying me a coffee!
-
-[![Buy me a coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/leonvanzyl)
-
-## ğŸ“‹ Prerequisites
-
-Before you begin, ensure you have the following installed on your machine:
-
-- **Node.js**: Version 18.0 or higher (<a href="https://nodejs.org/" target="_blank">Download here</a>)
-- **Git**: For cloning the repository (<a href="https://git-scm.com/" target="_blank">Download here</a>)
-- **PostgreSQL**: Either locally installed or access to a hosted service like Vercel Postgres
-
-## ğŸ› ï¸ Quick Setup
-
-### 1. Clone or Download the Repository
-
-**Option A: Clone with Git**
-
+## Setup Rápido
 ```bash
-git clone https://github.com/leonvanzyl/agentic-coding-starter-kit.git
-cd agentic-coding-starter-kit
+pnpm install
+cp .env.example .env # preencha variáveis abaixo
+pnpm db:migrate
+pnpm dev
 ```
+A aplicação roda em `http://localhost:3000`.
 
-**Option B: Download ZIP**
-Download the repository as a ZIP file and extract it to your desired location.
+### Variáveis de Ambiente Essenciais
+```
+POSTGRES_URL=postgres://user:pass@host:5432/db
+BETTER_AUTH_SECRET=...32 chars...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-4o-mini # ou equivalente
+S3_BUCKET=translator-pro-docs
+S3_REGION=us-east-1
+S3_ENDPOINT=http://localhost:9000 # se usar MinIO
+S3_ACCESS_KEY_ID=...
+S3_SECRET_ACCESS_KEY=...
+N8N_WEBHOOK_URL=https://n8n-url/webhook/translator
+```
+> **Dica:** em desenvolvimento você pode usar MinIO (docker-compose incluso) e um tunnel local para o n8n receber webhooks.
 
-### 2. Install Dependencies
+## Fluxo do MVP
+1. **Super-admin** monta workflows em `/super-admin/workflows` e os disponibiliza em `/super-admin/workflow-library`.
+2. **Operador** clona workflow em `/operator/workflows`, ajusta prompts/HTML e inicia job em `/operator/start-translation` (upload PDF/URL).
+3. **n8n** executa agentes, envia review gates ? operador revisa em `/reviews`.
+4. **Auditoria** das chaves fica em `key_audit` e é mostrada no detalhe do gate.
+5. **Conclusão**: `/jobs` e `/jobs/[jobId]` exibem métricas por agente (view `agent_job_metrics`) e disponibilizam PDF final.
 
+## Documentação
+- `docs/features/workflow-builder.md` – montagem e publicação de workflows.
+- `docs/features/review-gates.md` – ciclo do review gate + auditoria.
+- `docs/features/jobs-dashboard.md` – métricas, download e timeline de jobs.
+- `docs/runbooks/qa-mvp.md` – checklist end-to-end de QA.
+- `docs/business/` – artefatos de planejamento e starter-prompt completo.
+
+## Scripts Úteis
 ```bash
-npm install
+pnpm dev              # modo desenvolvimento
+pnpm lint             # ESLint
+pnpm test:unit        # testes unitários (tsx)
+pnpm db:migrate       # aplica migrações
+pnpm db:generate      # gera nova migração
+pnpm db:studio        # abre Drizzle Studio
 ```
 
-### 3. Environment Setup
-
-Copy the example environment file:
-
-```bash
-cp env.example .env
-```
-
-Fill in your environment variables in the `.env` file:
-
-```env
-# Database
-POSTGRES_URL="postgresql://username:password@localhost:5432/your_database_name"
-
-# Authentication - Better Auth
-BETTER_AUTH_SECRET="your-random-32-character-secret-key-here"
-
-# Google OAuth (Get from Google Cloud Console)
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# AI Integration (Optional - for chat functionality)
-OPENAI_API_KEY="sk-your-openai-api-key-here"
-OPENAI_MODEL="gpt-5-mini"
-
-# App URL (for production deployments)
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
-### 4. Database Setup
-
-Generate and run database migrations:
-
-```bash
-npm run db:generate
-npm run db:migrate
-```
-
-### 5. Start the Development Server
-
-```bash
-npm run dev
-```
-
-Your application will be available at [http://localhost:3000](http://localhost:3000)
-
-## âš™ï¸ Service Configuration
-
-### PostgreSQL Database on Vercel
-
-1. Go to <a href="https://vercel.com/dashboard" target="_blank">Vercel Dashboard</a>
-2. Navigate to the **Storage** tab
-3. Click **Create** â†’ **Postgres**
-4. Choose your database name and region
-5. Copy the `POSTGRES_URL` from the `.env.local` tab
-6. Add it to your `.env` file
-
-### Google OAuth Credentials
-
-1. Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>
-2. Create a new project or select an existing one
-3. Navigate to **Credentials** â†’ **Create Credentials** â†’ **OAuth 2.0 Client ID**
-4. Set application type to **Web application**
-5. Add authorized redirect URIs:
-   - `http://localhost:3000/api/auth/callback/google` (development)
-   - `https://yourdomain.com/api/auth/callback/google` (production)
-6. Copy the **Client ID** and **Client Secret** to your `.env` file
-
-### OpenAI API Key
-
-1. Go to <a href="https://platform.openai.com/dashboard" target="_blank">OpenAI Platform</a>
-2. Navigate to **API Keys** in the sidebar
-3. Click **Create new secret key**
-4. Give it a name and copy the key
-5. Add it to your `.env` file as `OPENAI_API_KEY`
-
-## ğŸ—‚ï¸ Project Structure
-
+## Estrutura de Pastas (resumo)
 ```
 src/
-â”œâ”€â”€ app/                    # Next.js app directory
-â”‚   â”œâ”€â”€ api/               # API routes
-â”‚   â”‚   â”œâ”€â”€ auth/          # Authentication endpoints
-â”‚   â”‚   â””â”€â”€ chat/          # AI chat endpoint
-â”‚   â”œâ”€â”€ chat/              # AI chat page
-â”‚   â”œâ”€â”€ dashboard/         # User dashboard
-â”‚   â””â”€â”€ page.tsx           # Home page
-â”œâ”€â”€ components/            # React components
-â”‚   â”œâ”€â”€ auth/             # Authentication components
-â”‚   â””â”€â”€ ui/               # shadcn/ui components
-â””â”€â”€ lib/                  # Utilities and configurations
-    â”œâ”€â”€ auth.ts           # Better Auth configuration
-    â”œâ”€â”€ auth-client.ts    # Client-side auth utilities
-    â”œâ”€â”€ db.ts             # Database connection
-    â”œâ”€â”€ schema.ts         # Database schema
-    â””â”€â”€ utils.ts          # General utilities
+ +- app/
+ ¦   +- (super-admin)/...      # console do super-admin
+ ¦   +- (operator)/...         # navegação do operador
+ ¦   +- api/webhooks/n8n       # inbound webhook do n8n
+ ¦   +- api/operator/jobs      # criação/feed de jobs
+ +- lib/
+ ¦   +- actions/               # server actions (review, clones, etc.)
+ ¦   +- db/schema/             # tabelas Drizzle + views
+ ¦   +- metrics/               # cálculo de métricas por agente
+ ¦   +- workflows/             # builder, clones e tipos
+ +- components/                # UI compartilhada (sidebar, topbar, shadcn)
 ```
 
-## ğŸ”§ Available Scripts
+## QA e Deploy
+- Execute o checklist em `docs/runbooks/qa-mvp.md` antes de cada entrega.
+- Deploy sugerido em Vercel + Railway/Render (PostgreSQL) + MinIO/S3.
+- Configure variáveis nos ambientes (produção/staging) antes do primeiro job.
 
-```bash
-npm run dev          # Start development server with Turbopack
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run db:generate  # Generate database migrations
-npm run db:migrate   # Run database migrations
-npm run db:push      # Push schema changes to database
-npm run db:studio    # Open Drizzle Studio (database GUI)
-npm run db:dev       # Push schema for development
-npm run db:reset     # Reset database (drop all tables)
-```
-
-## ğŸ“– Pages Overview
-
-- **Home (`/`)**: Landing page with setup instructions and features overview
-- **Dashboard (`/dashboard`)**: Protected user dashboard with profile information
-- **Chat (`/chat`)**: AI-powered chat interface using OpenAI (requires authentication)
-
-## ğŸš€ Deployment
-
-### Deploy to Vercel (Recommended)
-
-1. Install the Vercel CLI globally:
-
-   ```bash
-   npm install -g vercel
-   ```
-
-2. Deploy your application:
-
-   ```bash
-   vercel --prod
-   ```
-
-3. Follow the prompts to configure your deployment
-4. Add your environment variables when prompted or via the Vercel dashboard
-
-### Production Environment Variables
-
-Ensure these are set in your production environment:
-
-- `POSTGRES_URL` - Production PostgreSQL connection string
-- `BETTER_AUTH_SECRET` - Secure random 32+ character string
-- `GOOGLE_CLIENT_ID` - Google OAuth Client ID
-- `GOOGLE_CLIENT_SECRET` - Google OAuth Client Secret
-- `OPENAI_API_KEY` - OpenAI API key (optional)
-- `OPENAI_MODEL` - OpenAI model name (optional, defaults to gpt-5-mini)
-- `NEXT_PUBLIC_APP_URL` - Your production domain
-
-## ğŸ¥ Tutorial Video
-
-Watch my comprehensive tutorial on how to use this agentic coding boilerplate to build AI-powered applications:
-
-<a href="https://youtu.be/T0zFZsr_d0Q" target="_blank" rel="noopener noreferrer">ğŸ“º YouTube Tutorial - Building with Agentic Coding Boilerplate</a>
-
-## ğŸ¤ Contributing
-
-1. Fork this repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## ğŸ“ License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## ğŸ†˜ Need Help?
-
-If you encounter any issues:
-
-1. Check the [Issues](https://github.com/leonvanzyl/agentic-coding-starter-kit/issues) section
-2. Review the documentation above
-3. Create a new issue with detailed information about your problem
+## Suporte
+Encontrou um bug? Abra issue descrevendo tenant, job, payload do n8n e logs (`job_events`).
 
 ---
-
-**Happy coding! ğŸš€**
+Feito com Next.js, Drizzle e muito cuidado para auditar cada chave traduzida.
